@@ -66,7 +66,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** —
   - **Commit:** `chore: scaffold next.js app router + typescript strict`
 
-- [ ] **1.2 Lint / format / editor config**
+- [x] **1.2 Lint / format / editor config**
   - **Goal:** Enforce the style guide: ESLint (Next + TS), Prettier matching the JSX/import rules (kebab-case files, named exports, multiline imports), `.editorconfig`.
   - **Files:** `eslint.config.mjs`, `.prettierrc`, `.prettierignore`, `.editorconfig`.
   - **Depends:** 1.1
