@@ -110,7 +110,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 2.3
   - **Commit:** `feat(components): add shared ui atoms`
 
-- [ ] **2.5 Layout shells**
+- [x] **2.5 Layout shells**
   - **Goal:** `MarketingLayout` (navbar + footer) for the landing area and `WorkspaceLayout` (responsive 3-column shell) for the app.
   - **Files:** `src/layouts/marketing-layout/`, `src/layouts/workspace-layout/`.
   - **Depends:** 2.4
