@@ -72,7 +72,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 1.1
   - **Commit:** `chore: add eslint + prettier config per coding style`
 
-- [ ] **1.3 Environment & config module**
+- [x] **1.3 Environment & config module**
   - **Goal:** Typed runtime config for API base URL and Google Maps key; `.env.example` documenting required vars (`NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`). Never commit real secrets.
   - **Files:** `src/config/env.ts`, `.env.example`.
   - **Depends:** 1.1
