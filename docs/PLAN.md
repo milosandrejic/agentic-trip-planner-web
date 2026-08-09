@@ -86,7 +86,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 
 ## Phase 2 — Theme & Layout
 
-- [ ] **2.1 Palette & design tokens**
+- [x] **2.1 Palette & design tokens**
   - **Goal:** Encode the design system: navy primary, teal secondary, warm-orange accent, off-white background, and status colors (Active / Planning / Completed / Archived).
   - **Files:** `src/theme/palette.ts`.
   - **Depends:** 1.4
