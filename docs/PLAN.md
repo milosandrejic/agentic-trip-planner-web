@@ -98,7 +98,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 2.1
   - **Commit:** `feat(theme): add typography, shape and spacing`
 
-- [ ] **2.3 Component overrides + theme assembly**
+- [x] **2.3 Component overrides + theme assembly**
   - **Goal:** MUI overrides for Button, Card, Chip (status variants), Dialog, TextField, AppBar, Accordion; assemble `createTheme`.
   - **Files:** `src/theme/overrides/*`, `src/theme/index.ts`; replace placeholder ThemeProvider in `app-providers`.
   - **Depends:** 2.2

@@ -14,14 +14,13 @@ import {
 
 // prettier-ignore
 import {
-  createTheme,
   CssBaseline,
   ThemeProvider,
 } from "@mui/material";
 
-import { EmotionCacheProvider } from "@/components/providers/emotion-cache";
+import { theme } from "@/theme";
 
-const theme = createTheme();
+import { EmotionCacheProvider } from "@/components/providers/emotion-cache";
 
 export function AppProviders({ children }: PropsWithChildren) {
   const [queryClient] = useState(() => new QueryClient());
