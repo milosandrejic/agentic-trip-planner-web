@@ -1,6 +1,26 @@
 import type { Metadata } from "next";
 
+// prettier-ignore
+import {
+  Inter,
+  Manrope,
+} from "next/font/google";
+
 import { AppProviders } from "@/components/providers/app-providers";
+
+const inter = Inter({
+  display: "swap",
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: "variable",
+});
+
+const manrope = Manrope({
+  display: "swap",
+  subsets: ["latin"],
+  variable: "--font-manrope",
+  weight: "variable",
+});
 
 export const metadata: Metadata = {
   title: "Agentic Trip Planner",
@@ -10,7 +30,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
-      <body>
+      <body className={`${inter.variable} ${manrope.variable} ${inter.className}`}>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

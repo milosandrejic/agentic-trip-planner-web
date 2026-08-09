@@ -92,7 +92,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 1.4
   - **Commit:** `feat(theme): add palette and status color tokens`
 
-- [ ] **2.2 Typography, shape & spacing**
+- [x] **2.2 Typography, shape & spacing**
   - **Goal:** Font family + type scale matching the screens; border-radius and spacing tokens.
   - **Files:** `src/theme/typography.ts`, `src/theme/shape.ts`, `src/app/layout.tsx` (font wiring via `next/font`).
   - **Depends:** 2.1
