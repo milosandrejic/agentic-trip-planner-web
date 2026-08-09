@@ -104,7 +104,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 2.2
   - **Commit:** `feat(theme): add component overrides and assemble theme`
 
-- [ ] **2.4 Shared UI atoms**
+- [x] **2.4 Shared UI atoms**
   - **Goal:** Reusable primitives used across screens: `Logo`, `StatusChip` (maps trip/thread status → label + color), `SectionHeading`, an icon helper.
   - **Files:** `src/components/logo/`, `src/components/status-chip/`, `src/components/section-heading/`, `src/components/iconify/`.
   - **Depends:** 2.3
