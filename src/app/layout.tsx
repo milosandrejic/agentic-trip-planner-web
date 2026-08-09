@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import { AppProviders } from "@/components/providers/app-providers";
+
 export const metadata: Metadata = {
   title: "Agentic Trip Planner",
   description: "AI-powered conversational travel planning",
@@ -8,7 +10,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <AppProviders>{children}</AppProviders>
+      </body>
     </html>
   );
 }

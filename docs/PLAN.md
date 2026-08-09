@@ -78,7 +78,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 1.1
   - **Commit:** `chore: add typed env config and .env.example`
 
-- [ ] **1.4 Install core dependencies + root providers skeleton**
+- [x] **1.4 Install core dependencies + root providers skeleton**
   - **Goal:** Add MUI (`@mui/material`, `@emotion/react`, `@emotion/styled`, `@mui/icons-material`, `@mui/lab`), React Query (+ devtools), Axios, React Hook Form, Zod, `@hookform/resolvers`, `dayjs`. Wire `CssBaseline`, a React Query provider, and a placeholder ThemeProvider into the root layout with the Emotion cache for the App Router. (Google Maps dep added in Phase 8.)
   - **Files:** `package.json`, `src/components/providers/app-providers.tsx`, `src/components/providers/emotion-cache.tsx`, `src/app/layout.tsx`.
   - **Depends:** 1.1

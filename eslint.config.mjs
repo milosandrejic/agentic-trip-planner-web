@@ -192,7 +192,7 @@ export default defineConfig([
         },
       ],
       "import/no-default-export": "error",
-      "import/no-relative-parent-imports": "error",
+      "import/no-relative-parent-imports": ["error", { ignore: ["^@/"] }],
       "object-curly-newline": [
         "error",
         {
