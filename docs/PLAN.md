@@ -60,7 +60,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 
 ## Phase 1 — Project Setup
 
-- [ ] **1.1 Scaffold Next.js App Router + TypeScript (strict)**
+- [x] **1.1 Scaffold Next.js App Router + TypeScript (strict)**
   - **Goal:** Bootstrap the app with strict TS, `@/*` → `src/*` path alias, and the folder skeleton from `CODING_STYLE.md` (`api, assets, components, config, constants, context, hooks, layouts, services, theme, types, utils`) plus `app/` for routing.
   - **Files:** `package.json`, `tsconfig.json`, `next.config.ts`, `.gitignore`, `src/app/layout.tsx`, `src/app/page.tsx` (placeholder), folder `.gitkeep`s.
   - **Depends:** —
