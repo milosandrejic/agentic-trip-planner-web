@@ -118,7 +118,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 
 ## Phase 3 — API Layer & Data Types
 
-- [ ] **3.1 Domain types from `API.md`**
+- [x] **3.1 Domain types from `API.md`**
   - **Goal:** TypeScript interfaces for the API contract: `User`, `Trip`, `TripStatus`, `ThreadSummary`, `ThreadStatus`, `Message`, `PlannerResult` (discriminated union `itinerary | clarification`), `Itinerary`, `Day`, `Activity`, `Flight`, `Hotel`, `Source`, plus request/response envelopes and pagination (`cursor`/`next_cursor`).
   - **Files:** `src/types/api.ts`, `src/types/itinerary.ts`, `src/types/auth.ts`.
   - **Depends:** 1.1
