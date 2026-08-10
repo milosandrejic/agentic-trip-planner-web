@@ -9,7 +9,7 @@ import logoMark from "@/assets/logo-mark.svg";
 import authSparkle from "@/assets/auth-sparkle.svg";
 import logoSparkle from "@/assets/logo-sparkle.svg";
 
-export type LogoVariant = "auth" | "marketing" | "workspace";
+export type LogoVariant = "auth" | "footer" | "marketing" | "workspace";
 
 interface LogoProps {
   showLabel?: boolean;
@@ -85,7 +85,7 @@ interface LogoLabelProps {
 }
 
 function getLogoLabelFontSize(variant: LogoVariant): string {
-  if (variant === "auth") {
+  if (variant === "auth" || variant === "footer") {
     return "0.90625rem";
   }
 
@@ -133,7 +133,7 @@ function LogoMark({ variant }: LogoMarkProps) {
 }
 
 function getLogoGap(variant: LogoVariant): string {
-  if (variant === "auth") {
+  if (variant === "auth" || variant === "footer") {
     return "8px";
   }
 

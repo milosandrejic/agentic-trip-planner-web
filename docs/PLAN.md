@@ -178,7 +178,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 4.3, 2.4
   - **Commit:** `feat(auth): add sign in / create account modal`
 
-- [ ] **4.5 Auth gate**
+- [x] **4.5 Auth gate**
   - **Goal:** Guard the workspace and the landing "Start Planning" / prompt-submit actions — open the auth modal when unauthenticated, then continue the intended action.
   - **Files:** `src/components/auth/require-auth.tsx`, `src/hooks/use-require-auth.ts`.
   - **Depends:** 4.3
@@ -186,7 +186,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 
 ## Phase 5 — Landing Page
 
-- [ ] **5.1 Marketing navbar + footer**
+- [x] **5.1 Marketing navbar + footer**
   - **Goal:** Sticky navbar (logo, nav links, "Start Planning" CTA) and footer, wired into `MarketingLayout`.
   - **Files:** `src/components/landing/navbar.tsx`, `src/components/landing/footer.tsx`.
   - **Depends:** 2.5
