@@ -124,7 +124,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 1.1
   - **Commit:** `feat(types): add api and itinerary domain types`
 
-- [ ] **3.2 Axios instance + interceptors**
+- [x] **3.2 Axios instance + interceptors**
   - **Goal:** Single Axios client (base URL from config). Request interceptor attaches `Authorization: Bearer <token>`; response interceptor normalizes errors and handles `401` (clear token + surface auth-required). Token storage util.
   - **Files:** `src/api/axios.ts`, `src/utils/token-storage.ts`, `src/api/errors.ts`.
   - **Depends:** 1.3, 3.1
