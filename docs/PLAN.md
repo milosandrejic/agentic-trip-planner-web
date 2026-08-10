@@ -142,7 +142,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 3.2
   - **Commit:** `feat(services): add api service functions`
 
-- [ ] **3.5 Place-photo resolution strategy**
+- [x] **3.5 Place-photo resolution strategy**
   - **Goal:** Helper for authenticated `GET /places/photos/{ref}` (302 redirect) that `<img>` cannot call with a bearer header. Implement client-side fetch → object URL (with cache) behind a small `PlacePhoto` component; document the alternative Next route-handler proxy in code comments. Hotel `photo_url` (plain URL) renders directly.
   - **Files:** `src/components/place-photo/`, `src/services/places-service.ts`.
   - **Depends:** 3.2
