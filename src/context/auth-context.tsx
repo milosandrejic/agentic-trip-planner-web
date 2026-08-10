@@ -20,7 +20,6 @@ import {
   subscribeAccessToken,
 } from "@/utils/token-storage";
 
-// prettier-ignore
 import type {
   User,
   LoginRequest,

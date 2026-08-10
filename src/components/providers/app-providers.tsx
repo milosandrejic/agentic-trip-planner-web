@@ -1,18 +1,15 @@
 "use client";
 
-// prettier-ignore
 import {
   useState,
   type PropsWithChildren,
 } from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-// prettier-ignore
 import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
 
-// prettier-ignore
 import {
   CssBaseline,
   ThemeProvider,

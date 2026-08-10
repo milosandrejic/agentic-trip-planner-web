@@ -1,4 +1,3 @@
-// prettier-ignore
 import {
   Chip,
   type ChipProps,
@@ -42,7 +41,6 @@ export function StatusChip({ status, ...props }: StatusChipProps) {
   const presentation = statusPresentation[status];
 
   return (
-    // prettier-ignore
     <Chip
       {...props}
       label={presentation.label}

@@ -1,4 +1,3 @@
-// prettier-ignore
 import {
   Stack,
   Typography,
@@ -19,7 +18,6 @@ function SectionDescription({ description }: Pick<SectionHeadingProps, "descript
   }
 
   return (
-    // prettier-ignore
     <Typography
       color="text.secondary"
       sx={{ maxWidth: 560 }}
@@ -44,7 +42,6 @@ export function SectionHeading({
         textAlign: align,
       }}
     >
-      {/* prettier-ignore */}
       <Typography
         component="p"
         variant="overline"
@@ -53,7 +50,6 @@ export function SectionHeading({
         {eyebrow}
       </Typography>
 
-      {/* prettier-ignore */}
       <Typography
         component="h2"
         variant={titleVariant}

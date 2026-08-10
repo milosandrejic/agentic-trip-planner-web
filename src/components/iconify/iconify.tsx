@@ -1,4 +1,3 @@
-// prettier-ignore
 import {
   SvgIcon,
   type SvgIconProps,

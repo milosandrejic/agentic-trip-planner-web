@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "eslint . --fix",
+    "format:check": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -48,7 +48,6 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-unused-imports": "^4.4.1",
     "globals": "^17.9.0",
-    "prettier": "^3.9.6",
     "typescript": "^5",
     "typescript-eslint": "^8.66.0"
   }

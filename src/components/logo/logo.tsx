@@ -1,6 +1,5 @@
 import Image from "next/image";
 
-// prettier-ignore
 import {
   Box,
   Typography,
@@ -42,7 +41,6 @@ function WorkspaceLogoMark() {
         width: 30,
       }}
     >
-      {/* prettier-ignore */}
       <Image
         src={logoSparkle}
         alt=""
@@ -96,7 +94,6 @@ export function Logo({ showLabel = true, variant = "marketing" }: LogoProps) {
     >
       <LogoMark />
 
-      {/* prettier-ignore */}
       <LogoLabel
         isWorkspace={isWorkspace}
         label={label}

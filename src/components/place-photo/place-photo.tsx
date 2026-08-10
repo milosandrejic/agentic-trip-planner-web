@@ -1,6 +1,5 @@
 "use client";
 
-// prettier-ignore
 import {
   useState,
   useEffect,

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 
-// prettier-ignore
 import {
   Inter,
   Manrope,

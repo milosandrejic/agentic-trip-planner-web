@@ -1,6 +1,5 @@
 import axios from "axios";
 
-// prettier-ignore
 import {
   getAccessToken,
   clearAccessToken,

@@ -1,6 +1,5 @@
 import { apiClient } from "@/api/axios";
 
-// prettier-ignore
 import type {
   PaginationParams,
   GetThreadResponse,

@@ -1,4 +1,3 @@
-// prettier-ignore
 import {
   useQuery,
   useMutation,
@@ -8,14 +7,12 @@ import {
 import { setAccessToken } from "@/utils/token-storage";
 
 import { queryKeys } from "@/api/query-keys";
-// prettier-ignore
 import {
   getMe,
   login,
   register,
 } from "@/services/auth-service";
 
-// prettier-ignore
 import type {
   LoginRequest,
   RegisterRequest,

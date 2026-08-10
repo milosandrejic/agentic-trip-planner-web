@@ -1,9 +1,0 @@
-.next
-.vscode/mcp.json
-build
-coverage
-docs
-node_modules
-out
-package-lock.json
-README.md
