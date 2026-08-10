@@ -130,7 +130,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 1.3, 3.1
   - **Commit:** `feat(api): add axios client with auth + error interceptors`
 
-- [ ] **3.3 React Query keys + client tuning**
+- [x] **3.3 React Query keys + client tuning**
   - **Goal:** Centralized query-key factory and sensible defaults (retry/stale/gc) for the query client.
   - **Files:** `src/api/query-keys.ts`, `src/components/providers/app-providers.tsx` (client config).
   - **Depends:** 1.4, 3.1
