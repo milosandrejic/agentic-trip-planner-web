@@ -6,9 +6,10 @@ import {
 } from "@mui/material";
 
 import logoMark from "@/assets/logo-mark.svg";
+import authSparkle from "@/assets/auth-sparkle.svg";
 import logoSparkle from "@/assets/logo-sparkle.svg";
 
-export type LogoVariant = "marketing" | "workspace";
+export type LogoVariant = "auth" | "marketing" | "workspace";
 
 interface LogoProps {
   showLabel?: boolean;
@@ -52,13 +53,50 @@ function WorkspaceLogoMark() {
   );
 }
 
+function AuthLogoMark() {
+  return (
+    <Box
+      component="span"
+      sx={{
+        alignItems: "center",
+        background: "linear-gradient(135deg, #183153 0%, #2f9c95 100%)",
+        borderRadius: "9px",
+        display: "inline-flex",
+        height: 30,
+        justifyContent: "center",
+        width: 30,
+      }}
+    >
+      <Image
+        src={authSparkle}
+        alt=""
+        width={15}
+        height={15}
+        aria-hidden="true"
+      />
+    </Box>
+  );
+}
+
 interface LogoLabelProps {
-  isWorkspace: boolean;
+  variant: LogoVariant;
   label: string;
   showLabel: boolean;
 }
 
-function LogoLabel({ isWorkspace, label, showLabel }: LogoLabelProps) {
+function getLogoLabelFontSize(variant: LogoVariant): string {
+  if (variant === "auth") {
+    return "0.90625rem";
+  }
+
+  if (variant === "workspace") {
+    return "0.875rem";
+  }
+
+  return "0.9375rem";
+}
+
+function LogoLabel({ variant, label, showLabel }: LogoLabelProps) {
   if (!showLabel) {
     return null;
   }
@@ -68,7 +106,7 @@ function LogoLabel({ isWorkspace, label, showLabel }: LogoLabelProps) {
       component="span"
       variant="h6"
       sx={{
-        fontSize: isWorkspace ? "0.875rem" : "0.9375rem",
+        fontSize: getLogoLabelFontSize(variant),
         lineHeight: 1.5,
         whiteSpace: "nowrap",
       }}
@@ -78,9 +116,36 @@ function LogoLabel({ isWorkspace, label, showLabel }: LogoLabelProps) {
   );
 }
 
+interface LogoMarkProps {
+  variant: LogoVariant;
+}
+
+function LogoMark({ variant }: LogoMarkProps) {
+  if (variant === "auth") {
+    return <AuthLogoMark />;
+  }
+
+  if (variant === "workspace") {
+    return <WorkspaceLogoMark />;
+  }
+
+  return <MarketingLogoMark />;
+}
+
+function getLogoGap(variant: LogoVariant): string {
+  if (variant === "auth") {
+    return "8px";
+  }
+
+  if (variant === "workspace") {
+    return "9px";
+  }
+
+  return "10px";
+}
+
 export function Logo({ showLabel = true, variant = "marketing" }: LogoProps) {
   const isWorkspace = variant === "workspace";
-  const LogoMark = isWorkspace ? WorkspaceLogoMark : MarketingLogoMark;
   const label = isWorkspace ? "Agentic Trip" : "Agentic Trip Planner";
 
   return (
@@ -89,13 +154,13 @@ export function Logo({ showLabel = true, variant = "marketing" }: LogoProps) {
       sx={{
         alignItems: "center",
         display: "inline-flex",
-        gap: isWorkspace ? "9px" : "10px",
+        gap: getLogoGap(variant),
       }}
     >
-      <LogoMark />
+      <LogoMark variant={variant} />
 
       <LogoLabel
-        isWorkspace={isWorkspace}
+        variant={variant}
         label={label}
         showLabel={showLabel}
       />

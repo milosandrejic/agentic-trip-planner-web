@@ -172,7 +172,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 4.2
   - **Commit:** `feat(auth): add auth context and session hydration`
 
-- [ ] **4.4 Auth modal UI**
+- [x] **4.4 Auth modal UI**
   - **Goal:** Centered modal with segmented **Sign In / Create Account** toggle, RHF + Zod fields, password reveal, inline errors, loading state — matching `design/auth-*.png`.
   - **Files:** `src/components/auth/auth-dialog.tsx`, `src/components/auth/sign-in-form.tsx`, `src/components/auth/sign-up-form.tsx`.
   - **Depends:** 4.3, 2.4

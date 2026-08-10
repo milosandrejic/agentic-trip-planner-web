@@ -18,6 +18,7 @@ import {
 import { theme } from "@/theme";
 import { AuthProvider } from "@/context/auth-context";
 
+import { AuthDialog } from "@/components/auth/auth-dialog";
 import { EmotionCacheProvider } from "@/components/providers/emotion-cache";
 
 const QUERY_STALE_TIME_MS = 30 * 1000;
@@ -44,7 +45,11 @@ export function AppProviders({ children }: PropsWithChildren) {
         <CssBaseline />
 
         <QueryClientProvider client={queryClient}>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            {children}
+
+            <AuthDialog />
+          </AuthProvider>
 
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
