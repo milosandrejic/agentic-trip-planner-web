@@ -19,6 +19,8 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 
+import { focusTripPrompt } from "@/utils/focus-trip-prompt";
+
 import { Logo } from "@/components/logo/logo";
 
 interface NavigationLink {
@@ -62,17 +64,6 @@ const startPlanningButtonStyles = {
   minWidth: 131,
   padding: "9px 20px",
 } as const;
-
-function focusTripPrompt(): void {
-  const prompt = document.getElementById("trip-prompt");
-
-  if (!(prompt instanceof HTMLElement)) {
-    return;
-  }
-
-  prompt.scrollIntoView({ block: "center" });
-  prompt.focus();
-}
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);

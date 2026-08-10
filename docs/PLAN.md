@@ -216,13 +216,13 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 5.1
   - **Commit:** `feat(landing): add feature grid`
 
-- [ ] **5.6 Stats + testimonials**
+- [x] **5.6 Stats + testimonials**
   - **Goal:** Navy section with stats and testimonial cards.
   - **Files:** `src/components/landing/stats.tsx`, `src/components/landing/testimonials.tsx`.
   - **Depends:** 5.1
   - **Commit:** `feat(landing): add stats and testimonials`
 
-- [ ] **5.7 Final CTA + page assembly**
+- [x] **5.7 Final CTA + page assembly**
   - **Goal:** Orange final CTA; compose all sections in the landing route.
   - **Files:** `src/components/landing/final-cta.tsx`, `src/app/page.tsx`.
   - **Depends:** 5.2–5.6
