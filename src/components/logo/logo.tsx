@@ -18,7 +18,6 @@ interface LogoProps {
 
 function MarketingLogoMark() {
   return (
-    // prettier-ignore
     <Image
       src={logoMark}
       alt=""

@@ -154,19 +154,19 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 
 ## Phase 4 — Authentication 🔒
 
-- [ ] **4.1 Auth schemas (Zod) + form types**
+- [x] **4.1 Auth schemas (Zod) + form types**
   - **Goal:** `signInSchema` (email, password) and `signUpSchema` (separate `first_name` and `last_name`, email, password ≥ 8, optional country). Kept next to the form.
   - **Files:** `src/components/auth/auth-schemas.ts`.
   - **Depends:** 3.1
   - **Commit:** `feat(auth): add zod schemas for sign in / sign up`
 
-- [ ] **4.2 Auth mutations (React Query hooks)**
+- [x] **4.2 Auth mutations (React Query hooks)**
   - **Goal:** `useLogin`, `useRegister`, `useMe` hooks wrapping the auth service; persist token on success.
   - **Files:** `src/hooks/use-auth-mutations.ts`.
   - **Depends:** 3.4, 4.1
   - **Commit:** `feat(auth): add login/register/me query hooks`
 
-- [ ] **4.3 Auth context + session hydration**
+- [x] **4.3 Auth context + session hydration**
   - **Goal:** `AuthProvider` + `useAuth`: hydrate token on load, expose `user`, `isAuthenticated`, `login`, `logout` (client-side token clear). Open/close control for the auth modal.
   - **Files:** `src/context/auth-context.tsx`, `src/hooks/use-auth.ts`.
   - **Depends:** 4.2

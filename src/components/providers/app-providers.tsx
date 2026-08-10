@@ -19,6 +19,7 @@ import {
 } from "@mui/material";
 
 import { theme } from "@/theme";
+import { AuthProvider } from "@/context/auth-context";
 
 import { EmotionCacheProvider } from "@/components/providers/emotion-cache";
 
@@ -46,7 +47,7 @@ export function AppProviders({ children }: PropsWithChildren) {
         <CssBaseline />
 
         <QueryClientProvider client={queryClient}>
-          {children}
+          <AuthProvider>{children}</AuthProvider>
 
           <ReactQueryDevtools initialIsOpen={false} />
         </QueryClientProvider>
