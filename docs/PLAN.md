@@ -198,7 +198,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 5.1, 4.5, (uses 6.x trip creation hook — stub navigation until Phase 6, then connect)
   - **Commit:** `feat(landing): add hero and prompt section`
 
-- [ ] **5.3 How-it-works section**
+- [x] **5.3 How-it-works section**
   - **Goal:** Four connected steps.
   - **Files:** `src/components/landing/how-it-works.tsx`.
   - **Depends:** 5.1
