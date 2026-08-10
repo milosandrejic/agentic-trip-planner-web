@@ -4,6 +4,7 @@ import { Hero } from "@/components/landing/hero";
 import { Footer } from "@/components/landing/footer";
 import { Navbar } from "@/components/landing/navbar";
 import { HowItWorks } from "@/components/landing/how-it-works";
+import { ProductPreview } from "@/components/landing/product-preview";
 
 export default function HomePage() {
   return (
@@ -13,6 +14,7 @@ export default function HomePage() {
     >
       <Hero />
       <HowItWorks />
+      <ProductPreview />
     </MarketingLayout>
   );
 }

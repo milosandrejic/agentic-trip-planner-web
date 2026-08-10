@@ -204,7 +204,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 5.1
   - **Commit:** `feat(landing): add how-it-works section`
 
-- [ ] **5.4 Live product preview**
+- [x] **5.4 Live product preview**
   - **Goal:** Static browser-framed mock of the workspace.
   - **Files:** `src/components/landing/product-preview.tsx`.
   - **Depends:** 5.1
