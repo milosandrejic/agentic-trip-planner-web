@@ -192,7 +192,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 2.5
   - **Commit:** `feat(landing): add navbar and footer`
 
-- [ ] **5.2 Hero + prompt**
+- [x] **5.2 Hero + prompt**
   - **Goal:** Hero heading, subtitle, prompt input with suggestion chips, and the destination image; submit routes through the auth gate then creates a trip.
   - **Files:** `src/components/landing/hero.tsx`, `src/components/landing/prompt-box.tsx`.
   - **Depends:** 5.1, 4.5, (uses 6.x trip creation hook — stub navigation until Phase 6, then connect)

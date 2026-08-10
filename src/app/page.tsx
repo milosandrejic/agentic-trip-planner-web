@@ -1,7 +1,6 @@
-import { Box } from "@mui/material";
-
 import { MarketingLayout } from "@/layouts/marketing-layout/marketing-layout";
 
+import { Hero } from "@/components/landing/hero";
 import { Footer } from "@/components/landing/footer";
 import { Navbar } from "@/components/landing/navbar";
 
@@ -11,14 +10,7 @@ export default function HomePage() {
       footer={<Footer />}
       navbar={<Navbar />}
     >
-      <Box
-        sx={{
-          minHeight: {
-            xs: "calc(100dvh - 238px)",
-            md: "calc(100dvh - 166px)",
-          },
-        }}
-      />
+      <Hero />
     </MarketingLayout>
   );
 }

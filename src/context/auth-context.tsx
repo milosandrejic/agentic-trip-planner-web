@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useState,
+  useCallback,
   createContext,
   useSyncExternalStore,
   type PropsWithChildren,
@@ -94,13 +95,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
     queryClient.removeQueries();
   }
 
-  function openAuthDialog(): void {
-    setIsAuthDialogOpen(true);
-  }
-
-  function closeAuthDialog(): void {
-    setIsAuthDialogOpen(false);
-  }
+  const openAuthDialog = useCallback(() => setIsAuthDialogOpen(true), []);
+  const closeAuthDialog = useCallback(() => setIsAuthDialogOpen(false), []);
 
   return (
     <AuthContext.Provider
