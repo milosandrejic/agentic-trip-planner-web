@@ -41,7 +41,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 4. **Recent-trips list** (`GET /threads`) exposes only title, slug, status, timestamps — **no destination or thumbnail**. The sidebar shows title + status chip + date; thumbnails/destinations from the design are not available without per-thread fetches (out of scope, no new endpoint).
 5. **Trip hero image** is not a field. Use the first hotel `photo_url` (direct URL) or first activity photo, with a static fallback.
 6. **Activity photos** require `GET /places/photos/{ref}` (bearer-protected, 302). `<img>` can't send the token, so photos are fetched client-side into object URLs via `PlacePhoto`. Hotel `photo_url` is a plain URL and renders directly.
-7. **Registration** needs `first_name` + `last_name`; the "Full name" field is split on submit.
+7. **Registration** collects separate `first_name` + `last_name` fields, matching the API request directly.
 8. **Status mapping** (trip → chip): `ready → Active`, `draft`/`generating → Planning`, `completed → Completed`, `archived → Archived`.
 9. **Regenerate** sends a follow-up message via `POST /threads/{id}/messages`; there is no dedicated regenerate endpoint.
 
@@ -136,7 +136,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 1.4, 3.1
   - **Commit:** `feat(api): add query key factory and client config`
 
-- [ ] **3.4 Resource services (thin API functions)**
+- [x] **3.4 Resource services (thin API functions)**
   - **Goal:** One function per endpoint in `API.md`: `auth` (register, login, me), `trips` (create), `threads` (list, get, sendMessage, delete). No React here.
   - **Files:** `src/services/auth-service.ts`, `src/services/trips-service.ts`, `src/services/threads-service.ts`.
   - **Depends:** 3.2
@@ -155,7 +155,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 ## Phase 4 — Authentication 🔒
 
 - [ ] **4.1 Auth schemas (Zod) + form types**
-  - **Goal:** `signInSchema` (email, password) and `signUpSchema` (fullName → split to first/last on submit, email, password ≥ 8, optional country). Kept next to the form.
+  - **Goal:** `signInSchema` (email, password) and `signUpSchema` (separate `first_name` and `last_name`, email, password ≥ 8, optional country). Kept next to the form.
   - **Files:** `src/components/auth/auth-schemas.ts`.
   - **Depends:** 3.1
   - **Commit:** `feat(auth): add zod schemas for sign in / sign up`
