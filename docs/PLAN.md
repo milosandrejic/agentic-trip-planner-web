@@ -210,7 +210,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 5.1
   - **Commit:** `feat(landing): add product preview section`
 
-- [ ] **5.5 Feature grid**
+- [x] **5.5 Feature grid**
   - **Goal:** Eight feature cards (Flights, Hotels, Maps, Attractions, Restaurants, Weather, Events, AI Recommendations).
   - **Files:** `src/components/landing/feature-grid.tsx`, `src/constants/landing.ts`.
   - **Depends:** 5.1
