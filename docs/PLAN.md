@@ -236,7 +236,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 3.4, 4.3
   - **Commit:** `feat(workspace): add trip/thread query hooks`
 
-- [ ] **6.2 Workspace routes + shell wiring**
+- [x] **6.2 Workspace routes + shell wiring**
   - **Goal:** `/trips` (new/empty state) and `/trips/[threadId]` routes rendering `WorkspaceLayout`; loading/error boundaries.
   - **Files:** `src/app/trips/page.tsx`, `src/app/trips/[threadId]/page.tsx`, `src/app/trips/[threadId]/loading.tsx`.
   - **Depends:** 2.5, 6.1
