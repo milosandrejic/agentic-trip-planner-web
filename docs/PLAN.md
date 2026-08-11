@@ -254,7 +254,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 6.1, 6.2
   - **Commit:** `feat(workspace): add chat message renderer`
 
-- [ ] **6.5 Chat input**
+- [x] **6.5 Chat input**
   - **Goal:** Composer with Enter-to-send / Shift+Enter newline, wired to the create/send mutations with loading + disabled states.
   - **Files:** `src/components/workspace/chat/chat-input.tsx`, `src/components/workspace/chat/chat-panel.tsx` (composes list + input).
   - **Depends:** 6.1, 6.4
