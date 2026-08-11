@@ -248,7 +248,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 6.2, 7.1
   - **Commit:** `feat(workspace): add left sidebar with recent trips`
 
-- [ ] **6.4 Message renderer**
+- [x] **6.4 Message renderer**
   - **Goal:** Trip header + message list rendering user bubbles, the "Trip Created" banner, and **clarification** messages (from the `clarification` union branch). Presentation only — receives messages, emits no I/O.
   - **Files:** `src/components/workspace/chat/message-list.tsx`, `src/components/workspace/chat/message-bubble.tsx`, `src/components/workspace/chat/clarification-message.tsx`.
   - **Depends:** 6.1, 6.2
