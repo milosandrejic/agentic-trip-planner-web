@@ -230,7 +230,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 
 ## Phase 6 — Chat Workspace 🔒
 
-- [ ] **6.1 Trip / thread hooks + PlannerResult handling**
+- [x] **6.1 Trip / thread hooks + PlannerResult handling**
   - **Goal:** `useCreateTrip` (`POST /trips`), `useSendMessage` (`POST /threads/{id}/messages`), `useThread` (`GET /threads/{id}` with message pagination). Normalize the `itinerary | clarification` union for the UI; expose the latest itinerary snapshot.
   - **Files:** `src/hooks/use-trips.ts`, `src/hooks/use-thread.ts`, `src/utils/planner-result.ts`.
   - **Depends:** 3.4, 4.3
