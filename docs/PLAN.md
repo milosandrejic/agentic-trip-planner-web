@@ -242,7 +242,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 2.5, 6.1
   - **Commit:** `feat(workspace): add workspace routes and shell`
 
-- [ ] **6.3 Left sidebar**
+- [x] **6.3 Left sidebar**
   - **Goal:** Logo, "New Trip" button, recent-trips list (from `GET /threads`: title + status chip + updated date — see gap #4), and user profile menu with logout.
   - **Files:** `src/components/workspace/sidebar/workspace-sidebar.tsx`, `src/components/workspace/sidebar/recent-trips.tsx`, `src/components/workspace/sidebar/user-menu.tsx`.
   - **Depends:** 6.2, 7.1

@@ -3,13 +3,14 @@ import { Box } from "@mui/material";
 import { WorkspaceLayout } from "@/layouts/workspace-layout/workspace-layout";
 
 import { RequireAuth } from "@/components/auth/require-auth";
+import { WorkspaceSidebar } from "@/components/workspace/sidebar/workspace-sidebar";
 
 export default function TripsPage() {
   return (
     <RequireAuth>
       <WorkspaceLayout
         overview={<Box />}
-        sidebar={<Box />}
+        sidebar={<WorkspaceSidebar />}
       >
         <Box
           sx={{
