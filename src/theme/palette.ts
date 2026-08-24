@@ -8,6 +8,8 @@ export const brandColors = {
   orange: "#ff8a3d",
   canvas: "#faf8f5",
   surface: "#fafaf9",
+  control: "#f4f2ef",
+  overlay: "#1a2a3a",
   workspace: "#f7f5f2",
   white: "#ffffff",
 } as const;

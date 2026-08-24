@@ -47,6 +47,8 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 10. **Flight route** (`LHR → FCO` in the summary card) is not in the API — `Flight` carries no airport codes. The caption names the cheapest airline instead (`3 options · ANA`).
 11. **Hotel rating** is a 0–5 scale (`4.2`), not the 0–10 (`★8.9`) the mockups imply. The real value is rendered.
 12. **Place categories** (`Attractions · Restaurants · Viewpoints`) are derived from the three most frequent `activity.categories`, humanized (`tourist_attraction` → `Tourist Attraction`); no Google place-type lookup table is invented.
+13. **Travelers** (`2 people` in the overview meta) does not exist anywhere in the API — it appears only as free text inside the user's `query`. The row is replaced with **Destination**, which is a real `Itinerary` field.
+14. **Budget target / "remaining"** is likewise absent (only gap #2's estimate is derivable). The headline shows the **estimated spend**, labeled `Estimated`, and the progress bar shows **composition** (flights / hotels / activities) rather than budget consumption. Flights and hotels are alternatives, so the cheapest of each is used; activity `price_eur` values are summed.
 
 ---
 
@@ -269,13 +271,13 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 6.4
   - **Commit:** `feat(workspace): add itinerary summary cards`
 
-- [ ] **6.7 Day-by-day timeline**
+- [x] **6.7 Day-by-day timeline**
   - **Goal:** Accordions per `Day` with a timeline of activities (uses `time` bucket text — gap #1 — icon, description, duration, location); "Expand all".
   - **Files:** `src/components/workspace/itinerary/day-accordion.tsx`, `src/components/workspace/itinerary/activity-item.tsx`.
   - **Depends:** 6.4
   - **Commit:** `feat(workspace): add day-by-day itinerary timeline`
 
-- [ ] **6.8 Right sidebar (trip overview)**
+- [x] **6.8 Right sidebar (trip overview)**
   - **Goal:** Hero image (gap #5), meta (dates from `day.date` range / duration = `total_days` / travelers), weather (derived from `day.weather_summary` — gap #3), budget (estimated from flights + hotels + activity `price_eur` — gap #2), and Quick Actions (Export / Map / Share / Regenerate) triggering dialogs via `useDialog`.
   - **Files:** `src/components/workspace/overview/trip-overview.tsx`, `src/components/workspace/overview/budget-panel.tsx`, `src/components/workspace/overview/weather-panel.tsx`, `src/components/workspace/overview/quick-actions.tsx`, `src/utils/budget.ts`.
   - **Depends:** 6.4
@@ -367,6 +369,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 
 ## Deferred / future (not in this plan)
 
+- **Budget target and traveller count** (gaps #13, #14) — neither is an API field today. Likely resolved by capturing them from the planner's clarification follow-up (`missing_fields: ["budget", "travel_dates"]`) rather than by adding endpoints. Until then the overview shows an estimated spend and a Destination row.
 - PDF export backend integration (UX shipped in 8.5).
 - Share endpoint (copy-link UX shipped in 8.6).
 - Profile editing / Settings page — API exposes read-only `GET /me`; no update endpoint.
