@@ -291,7 +291,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 3.4
   - **Commit:** `feat(history): add paginated threads list hook`
 
-- [ ] **7.2 Open existing thread + delete**
+- [x] **7.2 Open existing thread + delete**
   - **Goal:** `/trips/[threadId]` loads the thread snapshot (metadata + latest itinerary) with loading/empty/error states; `useDeleteThread` (`DELETE /threads/{id}`) with confirm + cache invalidation.
   - **Files:** `src/app/trips/[threadId]/page.tsx`, `src/hooks/use-delete-thread.ts`.
   - **Depends:** 6.1, 6.2, 7.1

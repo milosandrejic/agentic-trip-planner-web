@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import {
   Box, Typography,
 } from "@mui/material";
@@ -7,11 +9,12 @@ import type { Message } from "@/types/api";
 import { MessageBubble } from "./message-bubble";
 
 interface MessageListProps {
+  action?: ReactNode;
   messages: readonly Message[];
   threadTitle: string;
 }
 
-export function MessageList({ messages, threadTitle }: MessageListProps) {
+export function MessageList({ action, messages, threadTitle }: MessageListProps) {
   return (
     <Box
       sx={{
@@ -27,6 +30,7 @@ export function MessageList({ messages, threadTitle }: MessageListProps) {
           borderBottom: "1px solid rgba(24, 49, 83, 0.07)",
           display: "flex",
           gap: "10px",
+          justifyContent: "space-between",
           paddingBottom: "14px",
         }}
       >
@@ -38,10 +42,15 @@ export function MessageList({ messages, threadTitle }: MessageListProps) {
             fontSize: 14.5,
             fontWeight: 700,
             letterSpacing: "-0.29px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
           }}
         >
           {threadTitle}
         </Typography>
+
+        {action}
       </Box>
 
       {
