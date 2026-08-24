@@ -44,6 +44,9 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 7. **Registration** collects separate `first_name` + `last_name` fields, matching the API request directly.
 8. **Status mapping** (trip → chip): `ready → Active`, `draft`/`generating → Planning`, `completed → Completed`, `archived → Archived`.
 9. **Regenerate** sends a follow-up message via `POST /threads/{id}/messages`; there is no dedicated regenerate endpoint.
+10. **Flight route** (`LHR → FCO` in the summary card) is not in the API — `Flight` carries no airport codes. The caption names the cheapest airline instead (`3 options · ANA`).
+11. **Hotel rating** is a 0–5 scale (`4.2`), not the 0–10 (`★8.9`) the mockups imply. The real value is rendered.
+12. **Place categories** (`Attractions · Restaurants · Viewpoints`) are derived from the three most frequent `activity.categories`, humanized (`tourist_attraction` → `Tourist Attraction`); no Google place-type lookup table is invented.
 
 ---
 
@@ -260,7 +263,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 6.1, 6.4
   - **Commit:** `feat(workspace): add chat input composer`
 
-- [ ] **6.6 Itinerary summary cards**
+- [x] **6.6 Itinerary summary cards**
   - **Goal:** 2×2 summary grid (Flights / Hotels / Itinerary / Places) derived from the itinerary snapshot; each opens its dialog via `useDialog` (Phase 8).
   - **Files:** `src/components/workspace/itinerary/summary-cards.tsx`.
   - **Depends:** 6.4

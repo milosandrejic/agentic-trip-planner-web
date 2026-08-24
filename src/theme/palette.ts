@@ -3,8 +3,11 @@ import type { PaletteOptions } from "@mui/material/styles";
 export const brandColors = {
   navy: "#183153",
   teal: "#2f9c95",
+  clay: "#8b7355",
+  slate: "#6b7280",
   orange: "#ff8a3d",
   canvas: "#faf8f5",
+  surface: "#fafaf9",
   workspace: "#f7f5f2",
   white: "#ffffff",
 } as const;
