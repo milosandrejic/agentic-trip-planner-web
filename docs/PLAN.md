@@ -285,7 +285,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 
 ## Phase 7 — Trip History 🔒
 
-- [ ] **7.1 Threads list hook (paginated)**
+- [x] **7.1 Threads list hook (paginated)**
   - **Goal:** `useThreads` with keyset pagination (`cursor`/`next_cursor`) for the recent-trips list.
   - **Files:** `src/hooks/use-threads.ts`.
   - **Depends:** 3.4
