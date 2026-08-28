@@ -50,6 +50,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 13. **Travelers** (`2 people` in the overview meta) does not exist anywhere in the API — it appears only as free text inside the user's `query`. The row is replaced with **Destination**, which is a real `Itinerary` field.
 14. **Budget target / "remaining"** is likewise absent (only gap #2's estimate is derivable). The headline shows the **estimated spend**, labeled `Estimated`, and the progress bar shows **composition** (flights / hotels / activities) rather than budget consumption. Flights and hotels are alternatives, so the cheapest of each is used; activity `price_eur` values are summed.
 15. **Flight departure / arrival times and airport pair** (`07:15 → 11:30`, `LHR → FCO`) are not in `Flight` — only `duration_min`, `stops`, `outbound_date`, `return_date`. The flight card keeps the design's connector but labels its two ends with the **outbound and return dates**.
+16. **Hotel amenities** ("Free WiFi", "Breakfast", "Spa") are not in `Hotel` — there is no amenities field. The chip row shows the real fields instead: `area`, plus an "Estimated price" marker when `is_estimated` is true. Nights are derived as `total_price / nightly_price`. The design's hotel-class stars are omitted entirely pending richer backend data.
 
 ---
 
@@ -316,7 +317,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 8.1, 6.6
   - **Commit:** `feat(dialogs): add flights dialog`
 
-- [ ] **8.3 Hotels dialog**
+- [x] **8.3 Hotels dialog**
   - **Goal:** List `itinerary.hotels` (photo via direct `photo_url`, rating, area, nightly/total price, amenities where available, "RECOMMENDED" chip, book link) — `design/hotels-dialog.png`. Opened via `useDialog`.
   - **Files:** `src/components/dialogs/hotels-dialog.tsx`.
   - **Depends:** 8.1, 6.6

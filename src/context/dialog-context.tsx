@@ -20,7 +20,7 @@ import type {
 export interface DialogPayloadMap {
   export: { itinerary: Itinerary; title: string };
   flights: { destination: string; flights: readonly Flight[] };
-  hotels: { hotels: readonly Hotel[] };
+  hotels: { destination: string; hotels: readonly Hotel[] };
   map: { itinerary: Itinerary };
   share: { threadId: string; title: string };
 }

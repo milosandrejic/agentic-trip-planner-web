@@ -179,7 +179,10 @@ function ThreadWorkspace({ threadId }: { threadId: string }) {
               destination: itinerary.destination,
               flights: itinerary.flights,
             })}
-            onViewHotels={() => dialog.open("hotels", { hotels: itinerary.hotels })}
+            onViewHotels={() => dialog.open("hotels", {
+              destination: itinerary.destination,
+              hotels: itinerary.hotels,
+            })}
             onViewItinerary={scrollToItinerary}
           />
         }
