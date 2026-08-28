@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import {
+  useRef,
+  useState,
+} from "react";
 import {
   useRouter,
   useParams,
@@ -21,6 +24,7 @@ import {
   DialogContentText,
 } from "@mui/material";
 
+import { useDialog } from "@/hooks/use-dialog";
 import { useDeleteThread } from "@/hooks/use-delete-thread";
 import {
   useThread,
@@ -66,6 +70,7 @@ function CenteredMessage({ text }: { text: string }) {
 
 function ThreadWorkspace({ threadId }: { threadId: string }) {
   const router = useRouter();
+  const itineraryRef = useRef<HTMLDivElement>(null);
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   const {
@@ -77,9 +82,19 @@ function ThreadWorkspace({ threadId }: { threadId: string }) {
 
   const sendMessage = useSendMessage(threadId);
   const deleteThread = useDeleteThread();
+  const dialog = useDialog();
 
   function handleSendMessage(query: string): void {
     sendMessage.mutate({ query });
+  }
+
+  function scrollToItinerary(): void {
+    itineraryRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /** Gap #9 — there is no regenerate endpoint, so this is a follow-up message. */
+  function handleRegenerate(): void {
+    sendMessage.mutate({ query: "Please regenerate this itinerary with fresh options." });
   }
 
   function handleConfirmDelete(): void {
@@ -136,10 +151,10 @@ function ThreadWorkspace({ threadId }: { threadId: string }) {
       itinerary={itinerary}
       status={data.thread.status}
       title={data.thread.title}
-      onExport={() => undefined}
-      onOpenMap={() => undefined}
-      onRegenerate={() => undefined}
-      onShare={() => undefined}
+      onExport={() => dialog.open("export", { itinerary, title: data.thread.title })}
+      onOpenMap={() => dialog.open("map", { itinerary })}
+      onRegenerate={handleRegenerate}
+      onShare={() => dialog.open("share", { threadId, title: data.thread.title })}
     />
   ) : <Box />;
 
@@ -159,16 +174,18 @@ function ThreadWorkspace({ threadId }: { threadId: string }) {
           itinerary !== null &&
           <SummaryCards
             summary={buildItinerarySummary(itinerary)}
-            onExplorePlaces={() => undefined}
-            onViewFlights={() => undefined}
-            onViewHotels={() => undefined}
-            onViewItinerary={() => undefined}
+            onExplorePlaces={() => dialog.open("map", { itinerary })}
+            onViewFlights={() => dialog.open("flights", { flights: itinerary.flights })}
+            onViewHotels={() => dialog.open("hotels", { hotels: itinerary.hotels })}
+            onViewItinerary={scrollToItinerary}
           />
         }
 
         {
           itinerary !== null &&
-          <ItineraryTimeline days={itinerary.days} />
+          <Box ref={itineraryRef}>
+            <ItineraryTimeline days={itinerary.days} />
+          </Box>
         }
       </ChatPanel>
 

@@ -17,8 +17,10 @@ import {
 
 import { theme } from "@/theme";
 import { AuthProvider } from "@/context/auth-context";
+import { DialogProvider } from "@/context/dialog-context";
 
 import { AuthDialog } from "@/components/auth/auth-dialog";
+import { DialogHost } from "@/components/dialogs/dialog-host";
 import { EmotionCacheProvider } from "@/components/providers/emotion-cache";
 
 const QUERY_STALE_TIME_MS = 30 * 1000;
@@ -46,7 +48,11 @@ export function AppProviders({ children }: PropsWithChildren) {
 
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
-            {children}
+            <DialogProvider>
+              {children}
+
+              <DialogHost />
+            </DialogProvider>
 
             <AuthDialog />
           </AuthProvider>

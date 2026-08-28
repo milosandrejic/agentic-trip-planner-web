@@ -303,7 +303,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 
 ## Phase 8 — Dialogs & Modals
 
-- [ ] **8.1 Dialog manager**
+- [x] **8.1 Dialog manager**
   - **Goal:** Central dialog state so workspace components never own open/close logic. `DialogProvider` holds the active dialog + payload; `useDialog` exposes `open(name, payload)` / `close()`; a single `DialogHost` renders the active dialog. Covers Flights, Hotels, Map, Export, Share. Registered once in the app providers.
   - **Files:** `src/context/dialog-context.tsx`, `src/hooks/use-dialog.ts`, `src/components/dialogs/dialog-host.tsx`, `src/components/providers/app-providers.tsx`.
   - **Depends:** 1.4
