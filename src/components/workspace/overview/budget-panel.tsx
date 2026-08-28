@@ -3,8 +3,8 @@ import {
   Typography,
 } from "@mui/material";
 
-import { formatBudgetAmount } from "@/utils/budget";
 import type { BudgetEstimate } from "@/utils/budget";
+import { formatCurrency } from "@/utils/format-currency";
 
 interface BudgetPanelProps {
   estimate: BudgetEstimate;
@@ -50,7 +50,7 @@ export function BudgetPanel({ estimate }: BudgetPanelProps) {
             lineHeight: "33px",
           }}
         >
-          {formatBudgetAmount(total, currency)}
+          {formatCurrency(total, currency)}
         </Typography>
 
         <Typography
@@ -113,14 +113,14 @@ export function BudgetPanel({ estimate }: BudgetPanelProps) {
           component="span"
           sx={{ fontSize: "inherit", lineHeight: "inherit" }}
         >
-          ✈ {formatBudgetAmount(flightsTotal, currency)}
+          ✈ {formatCurrency(flightsTotal, currency)}
         </Typography>
 
         <Typography
           component="span"
           sx={{ fontSize: "inherit", lineHeight: "inherit" }}
         >
-          🏨 {formatBudgetAmount(hotelsTotal, currency)}
+          🏨 {formatCurrency(hotelsTotal, currency)}
         </Typography>
       </Box>
     </Box>

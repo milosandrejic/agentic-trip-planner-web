@@ -1,3 +1,5 @@
+import { formatCurrency } from "@/utils/format-currency";
+
 import type {
   Day,
   Hotel,
@@ -26,14 +28,6 @@ export interface ItinerarySummary {
 
 const EMPTY_VALUE = "Not available";
 const PLACE_CATEGORY_LIMIT = 3;
-
-function formatPrice(amount: number, currency: string): string {
-  return new Intl.NumberFormat("en-GB", {
-    currency,
-    maximumFractionDigits: 0,
-    style: "currency",
-  }).format(amount);
-}
 
 function pluralize(count: number, singular: string): string {
   if (count === 1) {
@@ -114,7 +108,7 @@ function buildFlightsEntry(flights: readonly Flight[]): ItinerarySummaryEntry {
   return {
     caption: `${pluralize(flights.length, "option")} · ${cheapest.airline}`,
     isAvailable: true,
-    value: `from ${formatPrice(cheapest.price, cheapest.currency)}`,
+    value: `from ${formatCurrency(cheapest.price, cheapest.currency)}`,
   };
 }
 
@@ -135,7 +129,7 @@ function buildHotelsEntry(hotels: readonly Hotel[]): ItinerarySummaryEntry {
   return {
     caption: bestRating > 0 ? `${recommended} · ★${bestRating.toFixed(1)}` : recommended,
     isAvailable: true,
-    value: `from ${formatPrice(cheapest.nightly_price, cheapest.currency)}/night`,
+    value: `from ${formatCurrency(cheapest.nightly_price, cheapest.currency)}/night`,
   };
 }
 

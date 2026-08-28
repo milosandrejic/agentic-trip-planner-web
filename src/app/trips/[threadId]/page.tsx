@@ -175,7 +175,10 @@ function ThreadWorkspace({ threadId }: { threadId: string }) {
           <SummaryCards
             summary={buildItinerarySummary(itinerary)}
             onExplorePlaces={() => dialog.open("map", { itinerary })}
-            onViewFlights={() => dialog.open("flights", { flights: itinerary.flights })}
+            onViewFlights={() => dialog.open("flights", {
+              destination: itinerary.destination,
+              flights: itinerary.flights,
+            })}
             onViewHotels={() => dialog.open("hotels", { hotels: itinerary.hotels })}
             onViewItinerary={scrollToItinerary}
           />

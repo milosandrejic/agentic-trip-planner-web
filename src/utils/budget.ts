@@ -55,11 +55,3 @@ export function estimateBudget(itinerary: Itinerary): BudgetEstimate {
     total: flightsTotal + hotelsTotal + activitiesTotal,
   };
 }
-
-export function formatBudgetAmount(amount: number, currency: string): string {
-  return new Intl.NumberFormat("en-GB", {
-    currency,
-    maximumFractionDigits: 0,
-    style: "currency",
-  }).format(amount);
-}

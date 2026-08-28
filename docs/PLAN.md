@@ -49,6 +49,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 12. **Place categories** (`Attractions · Restaurants · Viewpoints`) are derived from the three most frequent `activity.categories`, humanized (`tourist_attraction` → `Tourist Attraction`); no Google place-type lookup table is invented.
 13. **Travelers** (`2 people` in the overview meta) does not exist anywhere in the API — it appears only as free text inside the user's `query`. The row is replaced with **Destination**, which is a real `Itinerary` field.
 14. **Budget target / "remaining"** is likewise absent (only gap #2's estimate is derivable). The headline shows the **estimated spend**, labeled `Estimated`, and the progress bar shows **composition** (flights / hotels / activities) rather than budget consumption. Flights and hotels are alternatives, so the cheapest of each is used; activity `price_eur` values are summed.
+15. **Flight departure / arrival times and airport pair** (`07:15 → 11:30`, `LHR → FCO`) are not in `Flight` — only `duration_min`, `stops`, `outbound_date`, `return_date`. The flight card keeps the design's connector but labels its two ends with the **outbound and return dates**.
 
 ---
 
@@ -309,7 +310,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 1.4
   - **Commit:** `feat(dialogs): add central dialog manager (provider + useDialog)`
 
-- [ ] **8.2 Flights dialog**
+- [x] **8.2 Flights dialog**
   - **Goal:** List `itinerary.flights` (airline, stops, duration, dates, price, "BEST VALUE" chip on cheapest, book link) — `design/flights-dialog.png`. Opened via `useDialog`.
   - **Files:** `src/components/dialogs/flights-dialog.tsx`.
   - **Depends:** 8.1, 6.6
