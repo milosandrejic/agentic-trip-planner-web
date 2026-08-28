@@ -323,7 +323,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 8.1, 6.6
   - **Commit:** `feat(dialogs): add hotels dialog`
 
-- [ ] **8.4 Map dialog (Google Maps)**
+- [x] **8.4 Map dialog (Google Maps)**
   - **Goal:** Add `@react-google-maps/api`; plot markers from activity + hotel coordinates, colored by type (Hotel / Attraction / Restaurant via `categories`) with a legend — `design/map-dialog.png`. Requires `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`. Opened via `useDialog`.
   - **Files:** `src/components/dialogs/map-dialog.tsx`, `src/utils/map-markers.ts`, `package.json`.
   - **Depends:** 8.1, 6.6, 1.3
