@@ -329,7 +329,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 8.1, 6.6, 1.3
   - **Commit:** `feat(dialogs): add google maps dialog`
 
-- [ ] **8.5 Export dialog (UX only)**
+- [x] **8.5 Export dialog (UX only)**
   - **Goal:** Full export UX with no backend/logic: trigger button → confirm → progress → success (download CTA) → error states — `design/export-dialog-*.png`. Wire the state machine; the actual export is deferred. Opened via `useDialog`.
   - **Files:** `src/components/dialogs/export-dialog.tsx`, `src/hooks/use-export-flow.ts`.
   - **Depends:** 8.1, 6.8
