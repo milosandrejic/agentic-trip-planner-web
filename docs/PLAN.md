@@ -335,7 +335,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 8.1, 6.8
   - **Commit:** `feat(dialogs): add export dialog ux (no backend)`
 
-- [ ] **8.6 Share trip (UX only)**
+- [x] **8.6 Share trip (UX only)**
   - **Goal:** Copy-link share affordance (uses trip `slug` / thread id); no share endpoint. Opened via `useDialog`.
   - **Files:** `src/components/dialogs/share-trip.tsx`.
   - **Depends:** 8.1, 6.8

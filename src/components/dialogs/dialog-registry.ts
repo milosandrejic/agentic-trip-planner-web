@@ -5,6 +5,7 @@ import type {
 } from "@/context/dialog-context";
 
 import { MapDialog } from "./map-dialog";
+import { ShareTripDialog } from "./share-trip";
 import { ExportDialog } from "./export-dialog";
 import { HotelsDialog } from "./hotels-dialog";
 import { FlightsDialog } from "./flights-dialog";
@@ -27,4 +28,5 @@ export const dialogRegistry: DialogRegistry = {
   hotels: HotelsDialog,
   map: MapDialog,
   export: ExportDialog,
+  share: ShareTripDialog,
 };
