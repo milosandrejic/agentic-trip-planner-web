@@ -35,7 +35,7 @@ These rules govern every task in this plan. When a decision is ambiguous, prefer
 
 This is the primary reference for interpreting the backend contract (`docs/API.md`). The design occasionally shows richer data than the API exposes; in every such case we derive from existing responses rather than invent endpoints.
 
-1. **Activity time** is a bucket (`"Morning" | "Afternoon" | "Evening"`), not a clock time as the mockups suggest — render the bucket label.
+1. ~~**Activity time** is a bucket.~~ **Corrected 2026-08-28:** the live API returns clock times (`"09:30"`), exactly as the mockups show. `API.md` is wrong here; the bucket type has been removed.
 2. **Budget** is not in the API. The budget panel is **estimated client-side** from `flights[].price` + `hotels[].total_price` + `activities[].price_eur`, labeled as an estimate.
 3. **Weather** has no endpoint. The weather panel is **derived from** `day.weather_summary` strings (first few days); it is not a real multi-day forecast feed.
 4. **Recent-trips list** (`GET /threads`) exposes only title, slug, status, timestamps — **no destination or thumbnail**. The sidebar shows title + status chip + date; thumbnails/destinations from the design are not available without per-thread fetches (out of scope, no new endpoint).
@@ -45,12 +45,13 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 8. **Status mapping** (trip → chip): `ready → Active`, `draft`/`generating → Planning`, `completed → Completed`, `archived → Archived`.
 9. **Regenerate** sends a follow-up message via `POST /threads/{id}/messages`; there is no dedicated regenerate endpoint.
 10. **Flight route** (`LHR → FCO` in the summary card) is not in the API — `Flight` carries no airport codes. The caption names the cheapest airline instead (`3 options · ANA`).
-11. **Hotel rating** is a 0–5 scale (`4.2`), not the 0–10 (`★8.9`) the mockups imply. The real value is rendered.
-12. **Place categories** (`Attractions · Restaurants · Viewpoints`) are derived from the three most frequent `activity.categories`, humanized (`tourist_attraction` → `Tourist Attraction`); no Google place-type lookup table is invented.
+11. ~~**Hotel rating** is 0–5.~~ **Corrected 2026-08-28:** the live API returns a 0–10 rating (`8.9`), matching the mockups. `API.md`'s `4.2` sample is wrong.
+12. **Place categories** are derived from the three most frequent `activity.categories`. **Corrected 2026-08-28:** the live API returns human-readable categories (`"Art museum"`, `"Food market"`), not snake_case Google types, so matching is keyword-based and case-insensitive.
 13. **Travelers** (`2 people` in the overview meta) does not exist anywhere in the API — it appears only as free text inside the user's `query`. The row is replaced with **Destination**, which is a real `Itinerary` field.
 14. **Budget target / "remaining"** is likewise absent (only gap #2's estimate is derivable). The headline shows the **estimated spend**, labeled `Estimated`, and the progress bar shows **composition** (flights / hotels / activities) rather than budget consumption. Flights and hotels are alternatives, so the cheapest of each is used; activity `price_eur` values are summed.
 15. **Flight departure / arrival times and airport pair** (`07:15 → 11:30`, `LHR → FCO`) are not in `Flight` — only `duration_min`, `stops`, `outbound_date`, `return_date`. The flight card keeps the design's connector but labels its two ends with the **outbound and return dates**.
 16. **Hotel amenities** ("Free WiFi", "Breakfast", "Spa") are not in `Hotel` — there is no amenities field. The chip row shows the real fields instead: `area`, plus an "Estimated price" marker when `is_estimated` is true. Nights are derived as `total_price / nightly_price`. The design's hotel-class stars are omitted entirely pending richer backend data.
+17. **`API.md` is out of date against the running backend** (verified 2026-08-28 against `localhost:8000`). Beyond the corrections above: `message.role` is `"human"`, not `"user"`; `Itinerary` has an undocumented `short_title`; and most enrichment fields are nullable in practice — `latitude`, `longitude`, `price_eur`, `rating`, `photo_url`, `booking_url`, `place_id`, `weather_summary`, `ticket_url`, `website_url`, `phone`, `business_status`, `editorial_summary`. The TypeScript types now reflect the live contract, not the document.
 
 ---
 

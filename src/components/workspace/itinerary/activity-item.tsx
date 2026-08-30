@@ -96,7 +96,7 @@ interface ActivityItemProps {
 export function ActivityItem({ activity, isLast }: ActivityItemProps) {
   const kind = getActivityKind(activity);
   const { color, icon: KindIcon } = kindStyles[kind];
-  const duration = formatDuration(activity.duration_hours);
+  const duration = formatDuration(activity.duration_hours ?? 0);
 
   return (
     <Box
@@ -200,7 +200,7 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
           }}
         >
           {
-            Boolean(activity.address) &&
+            activity.address &&
             <ActivityMeta
               icon={LocationOnOutlined}
               text={activity.address}
@@ -208,7 +208,7 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
           }
 
           {
-            Boolean(duration) &&
+            duration !== "" &&
             <ActivityMeta
               icon={AccessTimeRounded}
               text={duration}

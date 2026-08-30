@@ -35,7 +35,14 @@ export const mapMarkerLabels: Record<MapMarkerKind, string> = {
 export const mapMarkerKinds: readonly MapMarkerKind[] = ["hotel", "attraction", "restaurant"];
 
 /** Coordinates default to 0 when the planner has none; (0, 0) is not a real place here. */
-function hasCoordinates(latitude: number, longitude: number): boolean {
+function hasCoordinates(
+  latitude: number | null,
+  longitude: number | null,
+): latitude is number {
+  if (latitude === null || longitude === null) {
+    return false;
+  }
+
   if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
     return false;
   }
@@ -51,8 +58,8 @@ export function buildMapMarkers(itinerary: Itinerary): MapMarker[] {
       markers.push({
         id: `hotel-${hotel.id}`,
         kind: "hotel",
-        latitude: hotel.latitude,
-        longitude: hotel.longitude,
+        latitude: hotel.latitude ?? 0,
+        longitude: hotel.longitude ?? 0,
         title: hotel.name,
       });
     }
@@ -69,8 +76,8 @@ export function buildMapMarkers(itinerary: Itinerary): MapMarker[] {
       markers.push({
         id: `activity-${activity.id}`,
         kind: activityKind === "dining" ? "restaurant" : "attraction",
-        latitude: activity.latitude,
-        longitude: activity.longitude,
+        latitude: activity.latitude ?? 0,
+        longitude: activity.longitude ?? 0,
         title: activity.description,
       });
     }

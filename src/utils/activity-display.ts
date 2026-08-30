@@ -7,45 +7,26 @@ import type { Activity } from "@/types/itinerary";
  */
 export type ActivityKind = "attraction" | "dining" | "lodging" | "transport";
 
-const diningCategories = new Set([
-  "bar",
-  "cafe",
-  "food",
-  "bakery",
-  "restaurant",
-  "meal_delivery",
-  "meal_takeaway",
-]);
-
-const lodgingCategories = new Set([
-  "hotel",
-  "lodging",
-  "motel",
-  "guest_house",
-  "resort_hotel",
-]);
-
-const transportCategories = new Set([
-  "airport",
-  "car_rental",
-  "bus_station",
-  "train_station",
-  "subway_station",
-  "transit_station",
-]);
+/**
+ * The API returns human-readable categories ("Art museum", "Food market"), not the
+ * snake_case Google place types API.md documents — so these match on words, loosely.
+ */
+const kindKeywords: readonly (readonly [ActivityKind, readonly string[]])[] = [
+  ["lodging", ["hotel", "hostel", "lodging", "resort", "accommodation", "guest house"]],
+  ["transport", ["airport", "station", "transit", "train", "metro", "bus", "transfer", "car rental"]],
+  ["dining", ["dining", "restaurant", "food", "cafe", "coffee", "bar", "bistro", "nightlife", "tapas", "bakery"]],
+];
 
 export function getActivityKind(activity: Activity): ActivityKind {
-  for (const category of activity.categories) {
-    if (diningCategories.has(category)) {
-      return "dining";
-    }
+  const categories = activity.categories.map((category) => category.toLowerCase());
 
-    if (lodgingCategories.has(category)) {
-      return "lodging";
-    }
+  for (const [kind, keywords] of kindKeywords) {
+    const isMatch = categories.some((category) =>
+      keywords.some((keyword) => category.includes(keyword)),
+    );
 
-    if (transportCategories.has(category)) {
-      return "transport";
+    if (isMatch) {
+      return kind;
     }
   }
 

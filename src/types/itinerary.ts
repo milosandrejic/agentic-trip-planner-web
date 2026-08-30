@@ -3,30 +3,31 @@ export interface Source {
   url: string;
 }
 
-export type ActivityTime = "Morning" | "Afternoon" | "Evening";
+/** Clock time such as "09:30" — the API returns times, not the buckets API.md documents. */
+export type ActivityTime = string;
 
 export interface Activity {
   id: string;
   time: ActivityTime;
   description: string;
-  duration_hours: number;
-  place_id: string;
-  latitude: number;
-  longitude: number;
-  address: string;
-  rating: number;
-  user_rating_count: number;
+  duration_hours: number | null;
+  place_id: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  address: string | null;
+  rating: number | null;
+  user_rating_count: number | null;
   opening_hours: string[];
-  price_level: string;
-  price_eur: number;
-  ticket_url: string;
-  photo_url: string;
-  website_url: string;
-  phone: string;
-  business_status: string;
+  price_level: string | null;
+  price_eur: number | null;
+  ticket_url: string | null;
+  photo_url: string | null;
+  website_url: string | null;
+  phone: string | null;
+  business_status: string | null;
   categories: string[];
-  editorial_summary: string;
-  google_maps_url: string;
+  editorial_summary: string | null;
+  google_maps_url: string | null;
   sources: Source[];
 }
 
@@ -34,7 +35,7 @@ export interface Day {
   day: number;
   date: string;
   location: string;
-  weather_summary: string;
+  weather_summary: string | null;
   activities: Activity[];
 }
 
@@ -47,7 +48,7 @@ export interface Flight {
   currency: string;
   outbound_date: string;
   return_date: string;
-  booking_url: string;
+  booking_url: string | null;
   sources: Source[];
 }
 
@@ -55,20 +56,21 @@ export interface Hotel {
   id: string;
   name: string;
   area: string;
-  rating: number;
+  rating: number | null;
   nightly_price: number;
   is_estimated: boolean;
   total_price: number;
   currency: string;
-  latitude: number;
-  longitude: number;
-  booking_url: string;
-  photo_url: string;
+  latitude: number | null;
+  longitude: number | null;
+  booking_url: string | null;
+  photo_url: string | null;
   sources: Source[];
 }
 
 export interface Itinerary {
   destination: string;
+  short_title: string;
   total_days: number;
   summary: string;
   days: Day[];

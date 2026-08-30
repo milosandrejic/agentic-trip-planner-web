@@ -33,7 +33,11 @@ const weatherIcons: readonly (readonly [RegExp, string])[] = [
   [/sun|clear|fair/i, "☀️"],
 ];
 
-function getWeatherIcon(summary: string): string {
+function getWeatherIcon(summary: string | null): string {
+  if (!summary) {
+    return "🌡️";
+  }
+
   for (const [pattern, icon] of weatherIcons) {
     if (pattern.test(summary)) {
       return icon;
@@ -44,8 +48,8 @@ function getWeatherIcon(summary: string): string {
 }
 
 /** Pulls the first temperature out of strings like "Sunny, 24°C". */
-function getTemperature(summary: string): string {
-  const match = summary.match(/(-?\d+)\s*°/);
+function getTemperature(summary: string | null): string {
+  const match = summary?.match(/(-?\d+)\s*°/);
 
   if (!match) {
     return "—";
@@ -55,12 +59,15 @@ function getTemperature(summary: string): string {
 }
 
 export function getWeatherDays(itinerary: Itinerary): WeatherDay[] {
-  return itinerary.days.slice(0, WEATHER_DAY_LIMIT).map((day) => ({
-    dayOfMonth: day.date ? dayjs(day.date).format("D") : String(day.day),
-    icon: getWeatherIcon(day.weather_summary),
-    key: day.day,
-    temperature: getTemperature(day.weather_summary),
-  }));
+  return itinerary.days
+    .filter((day) => Boolean(day.weather_summary))
+    .slice(0, WEATHER_DAY_LIMIT)
+    .map((day) => ({
+      dayOfMonth: day.date ? dayjs(day.date).format("D") : String(day.day),
+      icon: getWeatherIcon(day.weather_summary),
+      key: day.day,
+      temperature: getTemperature(day.weather_summary),
+    }));
 }
 
 /** "Sep 12 – Sep 19" across the itinerary's first and last dated day. */
@@ -84,7 +91,7 @@ export function formatDateRange(itinerary: Itinerary): string {
 export function getHeroPhoto(itinerary: Itinerary): HeroPhoto {
   const hotelPhoto = itinerary.hotels.find((hotel) => Boolean(hotel.photo_url));
 
-  if (hotelPhoto) {
+  if (hotelPhoto?.photo_url) {
     return {
       kind: "url",
       url: hotelPhoto.photo_url,
@@ -94,7 +101,7 @@ export function getHeroPhoto(itinerary: Itinerary): HeroPhoto {
   for (const day of itinerary.days) {
     const activityPhoto = day.activities.find((activity) => Boolean(activity.photo_url));
 
-    if (activityPhoto) {
+    if (activityPhoto?.photo_url) {
       return {
         kind: "reference",
         reference: activityPhoto.photo_url,

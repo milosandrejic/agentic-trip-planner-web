@@ -3,7 +3,6 @@
 import { CloseRounded } from "@mui/icons-material";
 import {
   Box,
-  Button,
   Dialog,
   Typography,
   IconButton,
@@ -15,6 +14,8 @@ import { getStayNights } from "@/utils/hotel-display";
 import { formatCurrency } from "@/utils/format-currency";
 
 import { brandColors } from "@/theme/palette";
+
+import { BookingButton } from "@/components/dialogs/booking-button";
 
 import type { Hotel } from "@/types/itinerary";
 
@@ -50,7 +51,7 @@ function HotelCard({ hotel, isRecommended }: HotelCardProps) {
         }}
       >
         {
-          Boolean(hotel.photo_url) &&
+          hotel.photo_url &&
           <Box
             alt={hotel.name}
             component="img"
@@ -105,7 +106,7 @@ function HotelCard({ hotel, isRecommended }: HotelCardProps) {
               }}
             >
               {
-                hotel.rating > 0 &&
+                hotel.rating !== null && hotel.rating > 0 &&
                 <Typography
                   component="span"
                   sx={{
@@ -174,7 +175,7 @@ function HotelCard({ hotel, isRecommended }: HotelCardProps) {
           }}
         >
           {
-            Boolean(hotel.area) &&
+            hotel.area &&
             <Typography
               component="span"
               sx={{
@@ -209,26 +210,16 @@ function HotelCard({ hotel, isRecommended }: HotelCardProps) {
         </Box>
 
         <Box sx={{ marginTop: "auto" }}>
-          <Button
-            component="a"
-            disableElevation
+          <BookingButton
             href={hotel.booking_url}
-            rel="noopener noreferrer"
-            target="_blank"
-            variant="contained"
+            label="Book Hotel →"
             sx={{
-              backgroundColor: "primary.main",
               borderRadius: "10px",
-              color: "primary.contrastText",
               fontSize: 13.5,
-              fontWeight: 600,
               lineHeight: "20.25px",
               padding: "9px 18px",
-              textTransform: "none",
             }}
-          >
-            Book Hotel →
-          </Button>
+          />
         </Box>
       </Box>
 

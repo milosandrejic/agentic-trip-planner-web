@@ -5,7 +5,6 @@ import dayjs from "dayjs";
 import { CloseRounded } from "@mui/icons-material";
 import {
   Box,
-  Button,
   Dialog,
   Typography,
   IconButton,
@@ -21,6 +20,8 @@ import {
 } from "@/utils/flight-display";
 
 import { brandColors } from "@/theme/palette";
+
+import { BookingButton } from "@/components/dialogs/booking-button";
 
 import type { Flight } from "@/types/itinerary";
 
@@ -202,27 +203,16 @@ function FlightCard({ flight, isBestValue }: FlightCardProps) {
             {formatCurrency(flight.price, flight.currency)}
           </Typography>
 
-          <Button
-            component="a"
-            disableElevation
+          <BookingButton
             href={flight.booking_url}
-            rel="noopener noreferrer"
-            target="_blank"
-            variant="contained"
+            label="Book Flight"
             sx={{
-              backgroundColor: "primary.main",
               borderRadius: "9px",
-              color: "primary.contrastText",
               fontSize: 13,
-              fontWeight: 600,
               lineHeight: "19.5px",
               padding: "8px 16px",
-              textTransform: "none",
-              whiteSpace: "nowrap",
             }}
-          >
-            Book Flight
-          </Button>
+          />
         </Box>
       </Box>
     </Box>

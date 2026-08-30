@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   MenuRounded,
@@ -16,7 +17,6 @@ import {
   IconButton,
 } from "@mui/material";
 
-import { useAuth } from "@/hooks/use-auth";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 
 import { focusTripPrompt } from "@/utils/focus-trip-prompt";
@@ -67,7 +67,7 @@ const startPlanningButtonStyles = {
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { openAuthDialog } = useAuth();
+  const router = useRouter();
   const requireAuth = useRequireAuth();
 
   function closeMenu(): void {
@@ -76,7 +76,7 @@ export function Navbar() {
 
   function handleSignIn(): void {
     closeMenu();
-    openAuthDialog();
+    requireAuth(() => router.push("/trips"));
   }
 
   function handleStartPlanning(): void {

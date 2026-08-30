@@ -26,7 +26,8 @@ export interface ThreadSummary {
   updated_at: string;
 }
 
-export type MessageRole = "user" | "assistant";
+/** The API returns "human" for user-authored messages, not "user". */
+export type MessageRole = "assistant" | "human" | "user";
 
 export interface Message {
   id: string;

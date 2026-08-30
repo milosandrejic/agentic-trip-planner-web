@@ -13,7 +13,9 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message }: MessageBubbleProps) {
-  const isUser = message.role === "user";
+  // The API sends "human" for user-authored messages; anything not from the assistant
+  // is shown as the traveller's own message.
+  const isUser = message.role !== "assistant";
 
   return (
     <Box

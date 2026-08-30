@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import {
   useRef, useState,
 } from "react";
@@ -9,6 +10,7 @@ import {
   Box, Typography,
 } from "@mui/material";
 
+import { useCreateTrip } from "@/hooks/use-trips";
 import { useRequireAuth } from "@/hooks/use-require-auth";
 
 import lockIcon from "@/assets/hero-lock-icon.svg";
@@ -55,15 +57,19 @@ const suggestions: readonly Suggestion[] = [
   },
 ];
 
-function handleCreateTrip(): void {
-  // TODO(6.1): call useCreateTrip and navigate to the resulting thread.
-}
-
 export function Hero() {
   const [prompt, setPrompt] = useState("");
   const promptRef = useRef<HTMLTextAreaElement>(null);
   const requireAuth = useRequireAuth();
-  const canSubmit = prompt.trim().length >= MIN_QUERY_LENGTH;
+  const router = useRouter();
+  const createTrip = useCreateTrip();
+  const canSubmit = prompt.trim().length >= MIN_QUERY_LENGTH && !createTrip.isPending;
+
+  async function handleCreateTrip(): Promise<void> {
+    const response = await createTrip.mutateAsync({ query: prompt.trim() });
+
+    router.push(`/trips/${response.thread_id}`);
+  }
 
   function handleSubmit(): void {
     if (!canSubmit) {

@@ -58,18 +58,18 @@ function getCheapestHotel(hotels: readonly Hotel[]): Hotel | null {
 }
 
 function getBestRating(hotels: readonly Hotel[]): number {
-  return hotels.reduce((best, hotel) => Math.max(best, hotel.rating), 0);
+  return hotels.reduce((best, hotel) => Math.max(best, hotel.rating ?? 0), 0);
 }
 
 function countActivities(days: readonly Day[]): number {
   return days.reduce((total, day) => total + day.activities.length, 0);
 }
 
+/** Categories arrive already human-readable ("Art museum"); just normalise the case. */
 function humanizeCategory(category: string): string {
-  return category
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+  const trimmed = category.trim();
+
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 }
 
 /** Most frequent Google place categories across every activity, in descending order. */
