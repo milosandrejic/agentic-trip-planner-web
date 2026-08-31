@@ -7,7 +7,8 @@
 > we **stop, review, adjust, then commit** before moving on. The API layer is wired strictly
 > against `docs/API.md` — no endpoints are invented. Where the design shows data the API does not
 > expose, the gap is documented (see *Design ↔ API reconciliations*) and handled without new
-> backend calls.
+> backend calls. **`docs/API.md` was regenerated from the live OpenAPI schema on 2026-08-31 and is
+> authoritative; Phase 9 migrates the frontend onto it.**
 
 > **Stack:** Next.js (App Router) · TypeScript (strict) · Material UI · Axios · React Query
 > (TanStack) · React Hook Form · Zod · Google Maps. Auth = JWT bearer, stored client-side.
@@ -31,27 +32,101 @@ These rules govern every task in this plan. When a decision is ambiguous, prefer
 
 ---
 
-## Design ↔ API reconciliations (no endpoints invented)
+## Product framing — recommendations, not bookings
 
-This is the primary reference for interpreting the backend contract (`docs/API.md`). The design occasionally shows richer data than the API exposes; in every such case we derive from existing responses rather than invent endpoints.
+This governs copy and affordances across every screen, and is easy to get wrong.
 
-1. ~~**Activity time** is a bucket.~~ **Corrected 2026-08-28:** the live API returns clock times (`"09:30"`), exactly as the mockups show. `API.md` is wrong here; the bucket type has been removed.
-2. **Budget** is not in the API. The budget panel is **estimated client-side** from `flights[].price` + `hotels[].total_price` + `activities[].price_eur`, labeled as an estimate.
-3. **Weather** has no endpoint. The weather panel is **derived from** `day.weather_summary` strings (first few days); it is not a real multi-day forecast feed.
-4. **Recent-trips list** (`GET /threads`) exposes only title, slug, status, timestamps — **no destination or thumbnail**. The sidebar shows title + status chip + date; thumbnails/destinations from the design are not available without per-thread fetches (out of scope, no new endpoint).
-5. **Trip hero image** is not a field. Use the first hotel `photo_url` (direct URL) or first activity photo, with a static fallback.
-6. **Activity photos** require `GET /places/photos/{ref}` (bearer-protected, 302). `<img>` can't send the token, so photos are fetched client-side into object URLs via `PlacePhoto`. Hotel `photo_url` is a plain URL and renders directly.
-7. **Registration** collects separate `first_name` + `last_name` fields, matching the API request directly.
-8. **Status mapping** (trip → chip): `ready → Active`, `draft`/`generating → Planning`, `completed → Completed`, `archived → Archived`.
-9. **Regenerate** sends a follow-up message via `POST /threads/{id}/messages`; there is no dedicated regenerate endpoint.
-10. **Flight route** (`LHR → FCO` in the summary card) is not in the API — `Flight` carries no airport codes. The caption names the cheapest airline instead (`3 options · ANA`).
-11. ~~**Hotel rating** is 0–5.~~ **Corrected 2026-08-28:** the live API returns a 0–10 rating (`8.9`), matching the mockups. `API.md`'s `4.2` sample is wrong.
-12. **Place categories** are derived from the three most frequent `activity.categories`. **Corrected 2026-08-28:** the live API returns human-readable categories (`"Art museum"`, `"Food market"`), not snake_case Google types, so matching is keyword-based and case-insensitive.
-13. **Travelers** (`2 people` in the overview meta) does not exist anywhere in the API — it appears only as free text inside the user's `query`. The row is replaced with **Destination**, which is a real `Itinerary` field.
-14. **Budget target / "remaining"** is likewise absent (only gap #2's estimate is derivable). The headline shows the **estimated spend**, labeled `Estimated`, and the progress bar shows **composition** (flights / hotels / activities) rather than budget consumption. Flights and hotels are alternatives, so the cheapest of each is used; activity `price_eur` values are summed.
-15. **Flight departure / arrival times and airport pair** (`07:15 → 11:30`, `LHR → FCO`) are not in `Flight` — only `duration_min`, `stops`, `outbound_date`, `return_date`. The flight card keeps the design's connector but labels its two ends with the **outbound and return dates**.
-16. **Hotel amenities** ("Free WiFi", "Breakfast", "Spa") are not in `Hotel` — there is no amenities field. The chip row shows the real fields instead: `area`, plus an "Estimated price" marker when `is_estimated` is true. Nights are derived as `total_price / nightly_price`. The design's hotel-class stars are omitted entirely pending richer backend data.
-17. **`API.md` is out of date against the running backend** (verified 2026-08-28 against `localhost:8000`). Beyond the corrections above: `message.role` is `"human"`, not `"user"`; `Itinerary` has an undocumented `short_title`; and most enrichment fields are nullable in practice — `latitude`, `longitude`, `price_eur`, `rating`, `photo_url`, `booking_url`, `place_id`, `weather_summary`, `ticket_url`, `website_url`, `phone`, `business_status`, `editorial_summary`. The TypeScript types now reflect the live contract, not the document.
+We search providers, rank results and **present options**. We never own the transaction.
+No provider exposes a bookable deep link, so **every `booking_url` and `ticket_url` is a
+constructed search URL** — the one exception is an activity with an official venue website.
+
+Consequences the UI must honour:
+
+- **The price shown is indicative, not quoted.** A user who clicks "from €158" and lands on a
+  search page showing €190 has not hit a bug — but they will read it as one unless we say so.
+- **Label actions "Find" / "View options" / "Search", never "Book now".** A booking verb promises a
+  transaction we cannot deliver.
+- **Three fields are explicitly estimates** and must be labelled as such: `estimated_spend_eur`,
+  `Activity.price_is_estimated` (always `true` when a price is set — no provider prices activities),
+  and `HotelOption.is_estimated`.
+- **Budget is reported, not enforced.** The planner does not constrain a plan to `budget_eur`; it
+  only reports spend against it. Never imply a plan "fits" a budget.
+
+---
+
+## Known gaps — expected, not defects
+
+This is a **suggestion** product. The itinerary is a proposal to react to, not a booking record, so
+partial data is normal and the UI must degrade gracefully rather than treat a null as an error.
+
+> **Never render a placeholder.** No "N/A", no "€0", no broken icon, no empty panel. **Omit the
+> element instead.** Build the sparse case as the default and treat fully-populated data as the
+> happy path, not the reverse.
+
+**Activity prices are usually absent.** `activity.price_eur` is null far more often than not — no
+provider prices attractions, and the planner is deliberately conservative about inventing a figure.
+A row with no price simply shows no price; the design's "€29 · Trenitalia" line is an enhancement,
+not a requirement. `estimated_spend_eur` is likewise null when nothing is priced, in which case the
+budget panel shows the budget alone rather than a spend bar reading zero. Do not build anything
+that assumes a price exists.
+
+**Weather is missing beyond ~16 days.** A trip planned a month out has **no weather on any day** —
+not a few gaps, all of them — which is the common case for a planning product. The forecast panel
+needs a real absent state: hide it, or say the forecast is not available yet. Never an empty panel
+or a repeated placeholder icon.
+
+**Flight times and prices are sandbox values.** The provider runs in sandbox, so `departs_at`,
+`arrives_at` and `price` are synthetic — identical departure times across airlines, implausible
+durations. **The fields and shapes are correct; only the values are fake.** Build against them
+normally and do not work around what looks wrong; it resolves with a production key.
+
+**Older trips predate newer fields entirely.** Itineraries are stored snapshots, so every nullable
+field in `API.md` is genuinely nullable — including ones that look like they should always be there.
+
+---
+
+## Design ↔ API reconciliations
+
+`docs/API.md` (regenerated from the live OpenAPI schema, 2026-08-31) is the authoritative contract.
+The entries below are what remains after the backend MVP; everything else the design showed is now
+a real field. **Do not re-derive client-side anything the API now returns.**
+
+1. **Photos need a bearer token.** `GET /places/photos/{ref}` is authenticated and `<img src>` cannot
+   send a header, so `Activity.photo_url` and every `cover_image_url` are fetched client-side into
+   object URLs via `PlacePhoto`. Both are already full paths (`/places/photos/places/…/photos/…`) —
+   prefix with the API base; do **not** pass them back in as `{photo_reference}`. `HotelOption.photo_url`
+   is an absolute provider URL and renders directly.
+2. **Registration** collects separate `first_name` + `last_name`. Password is **8–30 characters**;
+   the server also validates encoded bytes, so 30 emoji are rejected.
+3. **Status mapping** (thread/trip → chip): `ready → Active` · `draft`/`generating`/`pending`/`running
+   → Planning` · `completed → Completed` · `archived`/`deleted → Archived` · `failed → Failed`.
+4. **Regenerate** sends a follow-up via `POST /threads/{id}/messages`; there is no regenerate endpoint.
+5. **Hotel amenities** ("Free WiFi", "Breakfast", "Spa") do not exist and are not planned. The chip row
+   carries the real fields: `area`, plus an "Estimated price" marker when `is_estimated` is true.
+6. **The per-category budget split** (✈ / 🏨) stays client-side — the API returns `budget_eur` and
+   `estimated_spend_eur` as totals, not a breakdown. Derive the split from the cheapest flight, the
+   cheapest hotel stay and summed activity prices, matching how `estimated_spend_eur` is composed.
+7. **Prices are per party** except `Activity.price_eur`, which is **per person**. Any price rendered
+   without `traveler_count` beside it is misleading. Older trips have a null count — say "total"
+   rather than inventing a party size.
+8. **Clarification loops.** `missing_fields` is drawn from `destination` · `duration` ·
+   `traveler_count`; a *partial* answer returns another clarification rather than a plan. The
+   clarification UI must handle repeated rounds, not a single question. Budget is requested in the
+   same message but never blocks.
+9. **Turns are synchronous** — up to 120 s, no streaming and no polling endpoint — and a second
+   message while one is running returns **409**. The composer must be disabled for the whole turn,
+   and the wait needs a real progress affordance, not a spinner with no explanation.
+10. **Older trips lack newer fields.** Itineraries are stored as snapshots, so a trip planned before a
+    field existed returns null rather than failing. Treat every nullable field as genuinely optional;
+    `DayPlan.title` falls back to `location`.
+
+### Resolved by the backend MVP — workarounds deleted
+
+Kept as a record so these are not reintroduced: activity time buckets, weather parsed from free text,
+sidebar cards without destination or thumbnail, hero image scavenged from the first hotel photo,
+flight cards captioned with an airline instead of a route, hotel rating assumed 0–5, activity type
+guessed from category keywords, and the Travellers row substituted with Destination. Each is now a
+first-class field — see *Newly available* in `docs/API.md`.
 
 ---
 
@@ -251,7 +326,7 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Commit:** `feat(workspace): add workspace routes and shell`
 
 - [x] **6.3 Left sidebar**
-  - **Goal:** Logo, "New Trip" button, recent-trips list (from `GET /threads`: title + status chip + updated date — see gap #4), and user profile menu with logout.
+  - **Goal:** Logo, "New Trip" button, recent-trips list (from `GET /threads`: title + status chip + updated date — **superseded by 9.7**, which adds cover, flag and dates), and user profile menu with logout.
   - **Files:** `src/components/workspace/sidebar/workspace-sidebar.tsx`, `src/components/workspace/sidebar/recent-trips.tsx`, `src/components/workspace/sidebar/user-menu.tsx`.
   - **Depends:** 6.2, 7.1
   - **Commit:** `feat(workspace): add left sidebar with recent trips`
@@ -275,13 +350,13 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Commit:** `feat(workspace): add itinerary summary cards`
 
 - [x] **6.7 Day-by-day timeline**
-  - **Goal:** Accordions per `Day` with a timeline of activities (uses `time` bucket text — gap #1 — icon, description, duration, location); "Expand all".
+  - **Goal:** Accordions per `Day` with a timeline of activities (uses `time`, icon, description, duration, location — **superseded by 9.3/9.8**); "Expand all".
   - **Files:** `src/components/workspace/itinerary/day-accordion.tsx`, `src/components/workspace/itinerary/activity-item.tsx`.
   - **Depends:** 6.4
   - **Commit:** `feat(workspace): add day-by-day itinerary timeline`
 
 - [x] **6.8 Right sidebar (trip overview)**
-  - **Goal:** Hero image (gap #5), meta (dates from `day.date` range / duration = `total_days` / travelers), weather (derived from `day.weather_summary` — gap #3), budget (estimated from flights + hotels + activity `price_eur` — gap #2), and Quick Actions (Export / Map / Share / Regenerate) triggering dialogs via `useDialog`.
+  - **Goal:** Hero image, meta (dates / duration / travellers), weather, budget — all derived client-side at the time; **superseded by 9.6**, and Quick Actions (Export / Map / Share / Regenerate) triggering dialogs via `useDialog`.
   - **Files:** `src/components/workspace/overview/trip-overview.tsx`, `src/components/workspace/overview/budget-panel.tsx`, `src/components/workspace/overview/weather-panel.tsx`, `src/components/workspace/overview/quick-actions.tsx`, `src/utils/budget.ts`.
   - **Depends:** 6.4
   - **Commit:** `feat(workspace): add right sidebar trip overview`
@@ -313,19 +388,19 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Commit:** `feat(dialogs): add central dialog manager (provider + useDialog)`
 
 - [x] **8.2 Flights dialog**
-  - **Goal:** List `itinerary.flights` (airline, stops, duration, dates, price, "BEST VALUE" chip on cheapest, book link) — `design/flights-dialog.png`. Opened via `useDialog`.
+  - **Goal:** List `itinerary.flights` (airline, stops, duration, dates, price, "BEST VALUE" chip on cheapest, book link — route and times **superseded by 9.4**) — `design/flights-dialog.png`. Opened via `useDialog`.
   - **Files:** `src/components/dialogs/flights-dialog.tsx`.
   - **Depends:** 8.1, 6.6
   - **Commit:** `feat(dialogs): add flights dialog`
 
 - [x] **8.3 Hotels dialog**
-  - **Goal:** List `itinerary.hotels` (photo via direct `photo_url`, rating, area, nightly/total price, amenities where available, "RECOMMENDED" chip, book link) — `design/hotels-dialog.png`. Opened via `useDialog`.
+  - **Goal:** List `itinerary.hotels` (photo via direct `photo_url`, rating, area, nightly/total price (rating split **superseded by 9.5**), "RECOMMENDED" chip, book link) — `design/hotels-dialog.png`. Opened via `useDialog`.
   - **Files:** `src/components/dialogs/hotels-dialog.tsx`.
   - **Depends:** 8.1, 6.6
   - **Commit:** `feat(dialogs): add hotels dialog`
 
 - [x] **8.4 Map dialog (Google Maps)**
-  - **Goal:** Add `@react-google-maps/api`; plot markers from activity + hotel coordinates, colored by type (Hotel / Attraction / Restaurant via `categories`) with a legend — `design/map-dialog.png`. Requires `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`. Opened via `useDialog`.
+  - **Goal:** Add `@react-google-maps/api`; plot markers from activity + hotel coordinates, colored by type (Hotel / Attraction / Restaurant via `categories` — **superseded by 9.3**, now `activity_type`) with a legend — `design/map-dialog.png`. Requires `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`. Opened via `useDialog`.
   - **Files:** `src/components/dialogs/map-dialog.tsx`, `src/utils/map-markers.ts`, `package.json`.
   - **Depends:** 8.1, 6.6, 1.3
   - **Commit:** `feat(dialogs): add google maps dialog`
@@ -342,28 +417,168 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
   - **Depends:** 8.1, 6.8
   - **Commit:** `feat(dialogs): add share trip copy-link ux`
 
-## Phase 9 — Polish, Responsiveness & Cleanup
+## Phase 9 — Contract migration (API v2) 🔒
 
-- [ ] **9.1 Responsive workspace**
-  - **Goal:** Collapse the 3-column layout to stacked panels / drawers on tablet and mobile; responsive landing.
-  - **Files:** `src/layouts/workspace-layout/`, landing components.
-  - **Depends:** Phases 5–8
+> The backend MVP landed on 2026-08-31 and `docs/API.md` was regenerated from the live schema.
+> This phase adopts the new contract: fix the breaking changes, delete the derivations it replaces,
+> and wire the new fields into the screens that were faking them. **Run this before Phase 10** —
+> polishing screens that are about to change their data source wastes the work.
+
+- [ ] **9.1 Retype against the v2 contract**
+  - **Goal:** Bring `src/types/` in line with the regenerated schema. Breaking: `hotel.rating` →
+    `star_rating` (0–5) + `guest_rating` (0–10); `day.weather_summary` → `day.weather`
+    (`DayWeather`); `activity.time` always `HH:MM` or null. New: `Itinerary.country_code`,
+    `timezone`, `start_date`, `end_date`, `traveler_count`, `budget_eur`, `estimated_spend_eur`,
+    `cover_image_url`; `DayPlan.title`; `Activity.activity_type` (17-value enum), `venue_name`,
+    `note`, `price_is_estimated`, `ticket_url`; `FlightOption.origin`, `destination`, `departs_at`,
+    `arrives_at`, `booking_url`; `HotelOption.booking_url`; `ThreadSummary.country_code`,
+    `start_date`, `end_date`, `cover_image_url`. Keep every nullable field nullable — snapshots mean
+    older trips return null. Password rule becomes 8–30 in the Zod schema.
+  - **Files:** `src/types/itinerary.ts`, `src/types/api.ts`, `src/components/auth/auth-schemas.ts`.
+  - **Depends:** —
+  - **Commit:** `feat(types): adopt the v2 api contract`
+
+- [ ] **9.2 Delete the superseded derivations**
+  - **Goal:** Remove client-side code the API now replaces, rather than leaving it dead: weather
+    string parsing (`getWeatherIcon`/`getTemperature`), the hero-photo fallback chain, keyword
+    category matching (`kindKeywords`), `humanizeCategory`, and the flight outbound/return-date
+    substitute. Let `tsc` drive the sweep.
+  - **Files:** `src/utils/trip-overview.ts`, `src/utils/activity-display.ts`,
+    `src/utils/itinerary-summary.ts`, `src/utils/flight-display.ts`, `src/utils/hotel-display.ts`.
+  - **Depends:** 9.1
+  - **Commit:** `refactor: drop derivations superseded by the v2 contract`
+
+- [ ] **9.3 Activity type → icons and map pins**
+  - **Goal:** Map the 17-value `activity_type` enum to timeline icons and marker colours, replacing
+    the 4-way keyword guess. The enum is finer than the design's three legend groups
+    (Hotel / Attraction / Restaurant), so the collapse happens here and is the single source for both
+    the timeline dot and the map pin.
+  - **Files:** `src/utils/activity-display.ts`, `src/utils/map-markers.ts`,
+    `src/components/workspace/itinerary/activity-item.tsx`.
+  - **Depends:** 9.1
+  - **Commit:** `feat(itinerary): drive icons and map pins from activity_type`
+
+- [ ] **9.4 Flight card: real route and times**
+  - **Goal:** Render the design as drawn — `07:15 → 11:30` from `departs_at`/`arrives_at` and
+    `LHR → FCO` from `origin`/`destination`, with the connector between them. Degrade to the
+    duration-only form when either is null (older trips) — omit the times, do not show a dash.
+    Flight values are sandbox-synthetic (identical times across airlines); the shapes are correct,
+    so build against them normally rather than working around implausible-looking data.
+  - **Files:** `src/components/dialogs/flights-dialog.tsx`, `src/utils/flight-display.ts`,
+    `src/components/workspace/itinerary/summary-cards.tsx`.
+  - **Depends:** 9.1
+  - **Commit:** `feat(dialogs): show real flight route and times`
+
+- [ ] **9.5 Hotel card: star class vs guest score**
+  - **Goal:** Restore the star row from `star_rating` (0–5 property class) and the ★8.9 badge from
+    `guest_rating` (0–10 review score) — two distinct fields that were previously conflated.
+  - **Files:** `src/components/dialogs/hotels-dialog.tsx`, `src/utils/hotel-display.ts`,
+    `src/components/workspace/itinerary/summary-cards.tsx`.
+  - **Depends:** 9.1
+  - **Commit:** `feat(dialogs): split hotel star class from guest score`
+
+- [ ] **9.6 Trip overview from real fields**
+  - **Goal:** Travellers row from `traveler_count`; dates from `start_date`/`end_date`; weather from
+    `day.weather` keyed on `weather_code`; hero from `cover_image_url` via `PlacePhoto`. Budget shows
+    `estimated_spend_eur` against `budget_eur` when a budget exists — labelled as an estimate against
+    a stated budget, never as a guarantee (see *Product framing*).
+  - **Absent cases are the default, not the edge** (see *Known gaps*): weather is null on **every**
+    day for any trip beyond ~16 days, so the panel hides entirely rather than showing placeholder
+    icons; `estimated_spend_eur` is null whenever nothing is priced, so show the budget alone with no
+    spend bar; a missing `traveler_count` means saying "total" rather than inventing a party size.
+    Each row omits itself when its field is null — no dashes, no zeros.
+  - **Files:** `src/components/workspace/overview/*`, `src/utils/budget.ts`,
+    `src/utils/trip-overview.ts`.
+  - **Depends:** 9.1, 9.2
+  - **Commit:** `feat(workspace): build the trip overview from v2 fields`
+
+- [ ] **9.7 Sidebar trip cards**
+  - **Goal:** The design's card, now that the data exists: `cover_image_url` thumbnail, country flag
+    from `country_code`, and the `start_date`–`end_date` range. Handle the null case — a thread has
+    no trip until its first turn completes.
+  - **Files:** `src/components/workspace/sidebar/recent-trips.tsx`, `src/utils/country.ts`.
+  - **Depends:** 9.1
+  - **Commit:** `feat(history): show cover, flag and dates on trip cards`
+
+- [ ] **9.8 Day titles, venue and note**
+  - **Goal:** Day headers use `DayPlan.title` ("Arrival & Trastevere") falling back to `location`.
+    The activity meta row splits `venue_name` from `note` — currently both collapse into `address`.
+  - **Files:** `src/components/workspace/itinerary/day-accordion.tsx`,
+    `src/components/workspace/itinerary/activity-item.tsx`.
+  - **Depends:** 9.1
+  - **Commit:** `feat(itinerary): render day titles, venue and note`
+
+- [ ] **9.9 Honest labelling for estimates and searches**
+  - **Goal:** Apply *Product framing* everywhere prices and links appear: "Find flights" / "View
+    options" instead of "Book"; an estimate marker on `estimated_spend_eur`, `price_is_estimated`
+    and `is_estimated`; and per-party prices shown against `traveler_count`. Copy-only, but it is
+    the difference between a product that reads as honest and one that reads as broken.
+  - **Files:** `src/components/dialogs/*`, `src/components/workspace/overview/budget-panel.tsx`,
+    `src/components/workspace/itinerary/summary-cards.tsx`.
+  - **Depends:** 9.4, 9.5, 9.6
+  - **Commit:** `feat(ux): label estimates and search links honestly`
+
+- [ ] **9.10 Clarification rounds, 409 and the long turn**
+  - **Goal:** The planner asks before it plans, and a partial answer asks again — so the
+    clarification UI must survive repeated rounds rather than assuming one question. Disable the
+    composer for the whole turn, surface `409` as "still working" rather than an error, and give the
+    ≤120 s wait a real progress affordance (see 10.3).
+  - **Files:** `src/components/workspace/chat/*`, `src/hooks/use-thread.ts`,
+    `src/utils/planner-result.ts`.
+  - **Depends:** 9.1
+  - **Commit:** `feat(workspace): handle clarification rounds and running turns`
+
+## Phase 10 — Polish, Motion & Responsiveness
+
+> The brief: *empty states, new conversations, animation — everything must feel nice and fluent.*
+> Treat this as product work, not a cleanup pass.
+
+- [ ] **10.1 Empty states and the new-conversation experience**
+  - **Goal:** Every zero state earns its screen. `/trips` with no trips at all (first-run) differs
+    from `/trips` with trips but none selected. A brand-new thread should invite a first message with
+    suggestions, the way the landing prompt does — not show an empty transcript. Cover: no flights,
+    no hotels, no mapped places, no weather, a thread whose trip has not completed its first turn,
+    and a failed thread.
+  - **Files:** `src/app/trips/page.tsx`, `src/components/workspace/chat/*`,
+    `src/components/workspace/**/empty-*`.
+  - **Depends:** Phase 9
+  - **Commit:** `feat(ux): add empty states and a new-conversation experience`
+
+- [ ] **10.2 Loading and skeletons**
+  - **Goal:** Skeletons that match the shape of what is loading — trip cards, summary cards, the
+    timeline, the transcript — so nothing jumps on arrival. Route error boundaries and a not-found
+    page.
+  - **Files:** `src/app/error.tsx`, `src/app/not-found.tsx`, `src/components/**/skeletons`.
+  - **Depends:** Phase 9
+  - **Commit:** `feat(ux): add skeletons and route error states`
+
+- [ ] **10.3 Motion and the planning wait**
+  - **Goal:** Make it feel fluent. Consistent transitions for dialogs, accordions, message arrival
+    and panel changes, on one easing/duration scale in the theme. The centrepiece is the **≤120 s
+    synchronous turn**: a staged progress narrative ("Searching flights… Comparing hotels… Building
+    your day plan…") rather than a spinner, since the user is otherwise staring at nothing for two
+    minutes. All of it behind `prefers-reduced-motion`.
+  - **Files:** `src/theme/motion.ts`, `src/components/workspace/chat/*`, dialogs.
+  - **Depends:** 9.10, 10.1
+  - **Commit:** `feat(ux): add a motion scale and a staged planning wait`
+
+- [ ] **10.4 Responsive workspace**
+  - **Goal:** Collapse the 3-column shell to stacked panels / drawers on tablet and mobile; verify
+    the landing page and every dialog at small widths.
+  - **Files:** `src/layouts/workspace-layout/`, landing components, dialogs.
+  - **Depends:** Phase 9
   - **Commit:** `feat(responsive): adapt workspace and landing for mobile`
 
-- [ ] **9.2 Loading, empty & error states**
-  - **Goal:** Skeletons for chat/itinerary/lists, empty states, and route error boundaries.
-  - **Files:** `src/app/error.tsx`, `src/app/not-found.tsx`, `src/components/**/skeletons`.
-  - **Depends:** Phases 5–8
-  - **Commit:** `feat(ux): add skeletons, empty and error states`
-
-- [ ] **9.3 Accessibility**
-  - **Goal:** Focus management in dialogs, ARIA labels, keyboard nav, reduced-motion.
+- [ ] **10.5 Accessibility**
+  - **Goal:** Focus management and return-focus in dialogs, ARIA labels, keyboard navigation through
+    the timeline and trip list, visible focus rings, and reduced-motion honoured throughout.
   - **Files:** across dialogs and interactive components.
-  - **Depends:** Phases 5–8
+  - **Depends:** 10.3
   - **Commit:** `feat(a11y): improve focus, aria and keyboard support`
 
-- [ ] **9.4 Final consistency pass**
-  - **Goal:** Audit against `CODING_STYLE.md` (imports, JSX formatting, named exports, no `any`), remove dead code, update `README.md` with setup/run instructions.
+- [ ] **10.6 Final consistency pass**
+  - **Goal:** Audit against `CODING_STYLE.md` (imports, JSX formatting, named exports, no `any`),
+    remove dead code, refresh `README.md` with setup and run instructions.
   - **Files:** repo-wide, `README.md`.
   - **Depends:** all
   - **Commit:** `chore: final consistency pass and readme`
@@ -372,7 +587,8 @@ This is the primary reference for interpreting the backend contract (`docs/API.m
 
 ## Deferred / future (not in this plan)
 
-- **Budget target and traveller count** (gaps #13, #14) — neither is an API field today. Likely resolved by capturing them from the planner's clarification follow-up (`missing_fields: ["budget", "travel_dates"]`) rather than by adding endpoints. Until then the overview shows an estimated spend and a Destination row.
+- **Hotel amenities** — no such field exists and none is planned.
+- **In-app booking and real ticket pricing** — we link out to searches; see *Product framing*.
 - PDF export backend integration (UX shipped in 8.5).
 - Share endpoint (copy-link UX shipped in 8.6).
 - Profile editing / Settings page — API exposes read-only `GET /me`; no update endpoint.
@@ -392,4 +608,8 @@ A task is complete only when **all** of the following hold:
 - [ ] Matches the corresponding Figma screen in `/design`.
 - [ ] Responsive where applicable.
 - [ ] Reuses existing components/hooks/services/utils/types instead of duplicating them.
+- [ ] Nullable API fields are handled as genuinely optional (older trips are snapshots).
+- [ ] Absent data omits its element — never "N/A", "€0", an empty panel or a placeholder icon.
+- [ ] Verified against a sparse payload, not only a fully-populated one.
+- [ ] Estimates are labelled as estimates and outbound links read as searches, not bookings.
 - [ ] Scoped to a single logical commit and reviewed before committing.
