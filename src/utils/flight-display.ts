@@ -35,7 +35,11 @@ export function formatStops(stops: number): string {
 /** Id of the cheapest flight, which carries the "BEST VALUE" chip. */
 export function getBestValueFlightId(flights: readonly Flight[]): string | null {
   const cheapest = flights.reduce<Flight | null>((best, flight) => {
-    if (best === null || flight.price < best.price) {
+    if (flight.price === null) {
+      return best;
+    }
+
+    if (best === null || best.price === null || flight.price < best.price) {
       return flight;
     }
 

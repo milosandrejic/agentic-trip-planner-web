@@ -23,50 +23,59 @@ export type HeroPhoto =
 
 const WEATHER_DAY_LIMIT = 3;
 
-const weatherIcons: readonly (readonly [RegExp, string])[] = [
-  [/thunder|storm/i, "⛈"],
-  [/snow|sleet/i, "❄️"],
-  [/rain|shower|drizzle/i, "🌧"],
-  [/fog|mist|haze/i, "🌫️"],
-  [/partly|partial|mostly sunny/i, "🌤"],
-  [/cloud|overcast/i, "⛅"],
-  [/sun|clear|fair/i, "☀️"],
-];
-
-function getWeatherIcon(summary: string | null): string {
-  if (!summary) {
-    return "🌡️";
+/**
+ * WMO weather codes → an icon. `weather_code` is the stable key the API documents for
+ * exactly this purpose, replacing the free-text matching we used before.
+ */
+function getWeatherIcon(code: number | null): string {
+  if (code === null) {
+    return "";
   }
 
-  for (const [pattern, icon] of weatherIcons) {
-    if (pattern.test(summary)) {
-      return icon;
-    }
+  if (code >= 95) {
+    return "⛈";
   }
 
-  return "🌡️";
+  if (code >= 80) {
+    return "🌦";
+  }
+
+  if (code >= 71) {
+    return "❄️";
+  }
+
+  if (code >= 51) {
+    return "🌧";
+  }
+
+  if (code >= 45) {
+    return "🌫️";
+  }
+
+  if (code >= 2) {
+    return "⛅";
+  }
+
+  if (code === 1) {
+    return "🌤";
+  }
+
+  return "☀️";
 }
 
-/** Pulls the first temperature out of strings like "Sunny, 24°C". */
-function getTemperature(summary: string | null): string {
-  const match = summary?.match(/(-?\d+)\s*°/);
-
-  if (!match) {
-    return "—";
-  }
-
-  return `${match[1]}°`;
-}
-
+/**
+ * Weather is null beyond the ~16-day forecast horizon, which means null on *every* day of
+ * such a trip — so an empty result is the common case, not an edge, and the panel hides.
+ */
 export function getWeatherDays(itinerary: Itinerary): WeatherDay[] {
   return itinerary.days
-    .filter((day) => Boolean(day.weather_summary))
+    .filter((day) => day.weather !== null)
     .slice(0, WEATHER_DAY_LIMIT)
     .map((day) => ({
       dayOfMonth: day.date ? dayjs(day.date).format("D") : String(day.day),
-      icon: getWeatherIcon(day.weather_summary),
+      icon: getWeatherIcon(day.weather?.weather_code ?? null),
       key: day.day,
-      temperature: getTemperature(day.weather_summary),
+      temperature: day.weather?.temp_max_c === null || day.weather?.temp_max_c === undefined ? "" : `${Math.round(day.weather.temp_max_c)}°`,
     }));
 }
 

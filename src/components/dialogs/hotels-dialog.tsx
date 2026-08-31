@@ -27,8 +27,8 @@ interface HotelCardProps {
 }
 
 /**
- * The design lists amenity chips ("Free WiFi", "Breakfast"); `Hotel` has no amenities
- * field (gap #16), so the chip row carries the real fields instead — `area`, and an
+ * The design lists amenity chips ("Free WiFi", "Breakfast"); the API has no amenities field
+ * and none is planned, so the chip row carries the real fields — `area`, and an
  * estimated-price marker when `is_estimated` is set.
  */
 function HotelCard({ hotel, isRecommended }: HotelCardProps) {
@@ -106,7 +106,7 @@ function HotelCard({ hotel, isRecommended }: HotelCardProps) {
               }}
             >
               {
-                hotel.rating !== null && hotel.rating > 0 &&
+                hotel.guest_rating !== null && hotel.guest_rating > 0 &&
                 <Typography
                   component="span"
                   sx={{
@@ -119,7 +119,7 @@ function HotelCard({ hotel, isRecommended }: HotelCardProps) {
                     padding: "2px 7px",
                   }}
                 >
-                  {hotel.rating.toFixed(1)}
+                  {hotel.guest_rating.toFixed(1)}
                 </Typography>
               }
             </Box>
@@ -137,7 +137,7 @@ function HotelCard({ hotel, isRecommended }: HotelCardProps) {
                 lineHeight: "30px",
               }}
             >
-              {formatCurrency(hotel.nightly_price, hotel.currency)}
+              {hotel.nightly_price === null ? "" : formatCurrency(hotel.nightly_price, hotel.currency ?? "EUR")}
             </Typography>
 
             <Typography
@@ -160,7 +160,7 @@ function HotelCard({ hotel, isRecommended }: HotelCardProps) {
                 paddingTop: "2px",
               }}
             >
-              {formatCurrency(hotel.total_price, hotel.currency)} total
+              {hotel.total_price === null ? "" : `${formatCurrency(hotel.total_price, hotel.currency ?? "EUR")} total`}
             </Typography>
           </Box>
         </Box>

@@ -20,7 +20,7 @@ const DEFAULT_CURRENCY = "EUR";
 
 export function estimateBudget(itinerary: Itinerary): BudgetEstimate {
   const cheapestFlight = itinerary.flights.reduce<number | null>((cheapest, flight) => {
-    if (cheapest === null || flight.price < cheapest) {
+    if (flight.price !== null && (cheapest === null || flight.price < cheapest)) {
       return flight.price;
     }
 
@@ -28,7 +28,7 @@ export function estimateBudget(itinerary: Itinerary): BudgetEstimate {
   }, null);
 
   const cheapestHotel = itinerary.hotels.reduce<number | null>((cheapest, hotel) => {
-    if (cheapest === null || hotel.total_price < cheapest) {
+    if (hotel.total_price !== null && (cheapest === null || hotel.total_price < cheapest)) {
       return hotel.total_price;
     }
 

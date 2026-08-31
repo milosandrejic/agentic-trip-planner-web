@@ -25,9 +25,9 @@ import { BookingButton } from "@/components/dialogs/booking-button";
 
 import type { Flight } from "@/types/itinerary";
 
-function formatFlightDate(date: string): string {
+function formatFlightDate(date: string | null): string {
   if (!date) {
-    return "—";
+    return "";
   }
 
   return dayjs(date).format("MMM D");
@@ -39,12 +39,11 @@ interface FlightCardProps {
 }
 
 /**
- * The design shows departure/arrival clock times and an airport pair; `Flight` carries
- * neither (gaps #10, #15), so the two ends of the connector are the outbound and
- * return dates, which the API does provide.
+ * Shows outbound/return dates at the connector ends. The v2 contract adds `origin`,
+ * `destination`, `departs_at` and `arrives_at` — task 9.4 renders the real route and times.
  */
 function FlightCard({ flight, isBestValue }: FlightCardProps) {
-  const duration = formatFlightDuration(flight.duration_min);
+  const duration = formatFlightDuration(flight.duration_min ?? 0);
 
   return (
     <Box
@@ -200,7 +199,7 @@ function FlightCard({ flight, isBestValue }: FlightCardProps) {
               paddingBottom: "8px",
             }}
           >
-            {formatCurrency(flight.price, flight.currency)}
+            {flight.price === null ? "" : formatCurrency(flight.price, flight.currency ?? "EUR")}
           </Typography>
 
           <BookingButton
@@ -229,7 +228,9 @@ export function FlightsDialog({ destination, flights, onClose }: FlightsDialogPr
   const bestValueId = getBestValueFlightId(flights);
   const firstFlight = flights[0];
 
-  const dateRange = firstFlight ? `${formatFlightDate(firstFlight.outbound_date)} – ${formatFlightDate(firstFlight.return_date)}` : "";
+  const outbound = firstFlight ? formatFlightDate(firstFlight.outbound_date) : "";
+  const inbound = firstFlight ? formatFlightDate(firstFlight.return_date) : "";
+  const dateRange = outbound && inbound ? `${outbound} – ${inbound}` : outbound;
 
   const optionsLabel = flights.length === 1 ? "1 option found" : `${flights.length} options found`;
 

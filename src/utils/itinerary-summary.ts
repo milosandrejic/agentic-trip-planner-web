@@ -39,7 +39,11 @@ function pluralize(count: number, singular: string): string {
 
 function getCheapestFlight(flights: readonly Flight[]): Flight | null {
   return flights.reduce<Flight | null>((cheapest, flight) => {
-    if (cheapest === null || flight.price < cheapest.price) {
+    if (flight.price === null) {
+      return cheapest;
+    }
+
+    if (cheapest === null || cheapest.price === null || flight.price < cheapest.price) {
       return flight;
     }
 
@@ -49,7 +53,11 @@ function getCheapestFlight(flights: readonly Flight[]): Flight | null {
 
 function getCheapestHotel(hotels: readonly Hotel[]): Hotel | null {
   return hotels.reduce<Hotel | null>((cheapest, hotel) => {
-    if (cheapest === null || hotel.nightly_price < cheapest.nightly_price) {
+    if (hotel.nightly_price === null) {
+      return cheapest;
+    }
+
+    if (cheapest === null || cheapest.nightly_price === null || hotel.nightly_price < cheapest.nightly_price) {
       return hotel;
     }
 
@@ -58,7 +66,7 @@ function getCheapestHotel(hotels: readonly Hotel[]): Hotel | null {
 }
 
 function getBestRating(hotels: readonly Hotel[]): number {
-  return hotels.reduce((best, hotel) => Math.max(best, hotel.rating ?? 0), 0);
+  return hotels.reduce((best, hotel) => Math.max(best, hotel.guest_rating ?? 0), 0);
 }
 
 function countActivities(days: readonly Day[]): number {
@@ -97,7 +105,7 @@ function getTopCategories(days: readonly Day[]): string[] {
 function buildFlightsEntry(flights: readonly Flight[]): ItinerarySummaryEntry {
   const cheapest = getCheapestFlight(flights);
 
-  if (!cheapest) {
+  if (!cheapest || cheapest.price === null) {
     return {
       caption: "No flights in this plan yet",
       isAvailable: false,
@@ -108,14 +116,14 @@ function buildFlightsEntry(flights: readonly Flight[]): ItinerarySummaryEntry {
   return {
     caption: `${pluralize(flights.length, "option")} · ${cheapest.airline}`,
     isAvailable: true,
-    value: `from ${formatCurrency(cheapest.price, cheapest.currency)}`,
+    value: `from ${formatCurrency(cheapest.price, cheapest.currency ?? "EUR")}`,
   };
 }
 
 function buildHotelsEntry(hotels: readonly Hotel[]): ItinerarySummaryEntry {
   const cheapest = getCheapestHotel(hotels);
 
-  if (!cheapest) {
+  if (!cheapest || cheapest.nightly_price === null) {
     return {
       caption: "No hotels in this plan yet",
       isAvailable: false,
@@ -129,7 +137,7 @@ function buildHotelsEntry(hotels: readonly Hotel[]): ItinerarySummaryEntry {
   return {
     caption: bestRating > 0 ? `${recommended} · ★${bestRating.toFixed(1)}` : recommended,
     isAvailable: true,
-    value: `from ${formatCurrency(cheapest.nightly_price, cheapest.currency)}/night`,
+    value: `from ${formatCurrency(cheapest.nightly_price, cheapest.currency ?? "EUR")}/night`,
   };
 }
 
