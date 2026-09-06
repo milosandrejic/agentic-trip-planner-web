@@ -7,15 +7,18 @@ import {
   Typography,
 } from "@mui/material";
 
-import { estimateBudget } from "@/utils/budget";
+import {
+  isBudgetEmpty,
+  buildBudgetSummary,
+} from "@/utils/budget";
 import {
   getHeroPhoto,
   getWeatherDays,
+  formatTravelers,
   formatDateRange,
 } from "@/utils/trip-overview";
 
 import { brandColors } from "@/theme/palette";
-import heroFallback from "@/assets/hero-santorini.jpg";
 
 import { PlacePhoto } from "@/components/place-photo/place-photo";
 import { BudgetPanel } from "@/components/workspace/overview/budget-panel";
@@ -23,6 +26,7 @@ import { QuickActions } from "@/components/workspace/overview/quick-actions";
 import { WeatherPanel } from "@/components/workspace/overview/weather-panel";
 import {
   StatusChip,
+  getStatusColor,
   type StatusChipStatus,
 } from "@/components/status-chip/status-chip";
 
@@ -142,7 +146,9 @@ export function TripOverview({
 }: TripOverviewProps) {
   const heroPhoto = getHeroPhoto(itinerary);
   const weatherDays = getWeatherDays(itinerary);
-  const budget = estimateBudget(itinerary);
+  const budget = buildBudgetSummary(itinerary);
+  const dateRange = formatDateRange(itinerary);
+  const travelers = formatTravelers(itinerary.traveler_count);
 
   const heroImageStyles = {
     height: "100%",
@@ -161,29 +167,33 @@ export function TripOverview({
         }}
       >
         {
-          heroPhoto.kind === "reference" &&
+          heroPhoto.kind === "path" &&
           <PlacePhoto
             alt={itinerary.destination}
-            fallbackSrc={heroFallback.src}
             maxWidthPx={600}
-            photoReference={heroPhoto.reference}
+            photoReference={heroPhoto.path}
             style={heroImageStyles}
           />
         }
 
         {
-          heroPhoto.kind !== "reference" &&
+          heroPhoto.kind === "url" &&
           <Box
             alt={itinerary.destination}
             component="img"
-            src={heroPhoto.kind === "url" ? heroPhoto.url : heroFallback.src}
+            src={heroPhoto.url}
             sx={heroImageStyles}
           />
         }
 
         <Box
           sx={{
-            background: "linear-gradient(to top, rgba(24, 49, 83, 0.72), rgba(24, 49, 83, 0) 55%)",
+            background: [
+              "linear-gradient(to top,",
+              "rgba(10, 18, 30, 0.92) 0%,",
+              "rgba(10, 18, 30, 0.55) 38%,",
+              "rgba(10, 18, 30, 0) 78%)",
+            ].join(" "),
             inset: 0,
             position: "absolute",
           }}
@@ -207,6 +217,7 @@ export function TripOverview({
               letterSpacing: "-0.4px",
               lineHeight: "24px",
               overflow: "hidden",
+              textShadow: "0 1px 3px rgba(10, 18, 30, 0.55)",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
             }}
@@ -214,8 +225,27 @@ export function TripOverview({
             {title}
           </Typography>
 
-          <Box sx={{ marginTop: "5px" }}>
-            <StatusChip status={status} />
+          <Box sx={{ marginTop: "6px" }}>
+            <StatusChip
+              status={status}
+              sx={{
+                backdropFilter: "blur(6px)",
+                backgroundColor: "rgba(10, 18, 30, 0.55)",
+                color: brandColors.white,
+                "&::before": {
+                  backgroundColor: getStatusColor(status),
+                  borderRadius: "50%",
+                  content: '""',
+                  flexShrink: 0,
+                  height: 6,
+                  marginLeft: "10px",
+                  width: 6,
+                },
+                "& .MuiChip-label": {
+                  paddingLeft: "6px",
+                },
+              }}
+            />
           </Box>
         </Box>
       </Box>
@@ -225,17 +255,29 @@ export function TripOverview({
           hasDivider
           title="Trip details"
         >
-          <MetaRow
-            icon="📅"
-            label="Dates"
-            value={formatDateRange(itinerary)}
-          />
+          {
+            dateRange !== null &&
+            <MetaRow
+              icon="📅"
+              label="Dates"
+              value={dateRange}
+            />
+          }
 
           <MetaRow
             icon="🗓"
             label="Duration"
             value={`${itinerary.total_days} days`}
           />
+
+          {
+            travelers !== null &&
+            <MetaRow
+              icon="👥"
+              label="Travellers"
+              value={travelers}
+            />
+          }
 
           <MetaRow
             icon="📍"
@@ -254,12 +296,15 @@ export function TripOverview({
           </OverviewSection>
         }
 
-        <OverviewSection
-          hasDivider
-          title="Budget"
-        >
-          <BudgetPanel estimate={budget} />
-        </OverviewSection>
+        {
+          !isBudgetEmpty(budget) &&
+          <OverviewSection
+            hasDivider
+            title="Budget"
+          >
+            <BudgetPanel summary={budget} />
+          </OverviewSection>
+        }
 
         <OverviewSection
           hasDivider={false}

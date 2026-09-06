@@ -478,7 +478,7 @@ first-class field — see *Newly available* in `docs/API.md`.
   - **Depends:** 9.1
   - **Commit:** `feat(dialogs): split hotel star class from guest score`
 
-- [ ] **9.6 Trip overview from real fields**
+- [x] **9.6 Trip overview from real fields**
   - **Goal:** Travellers row from `traveler_count`; dates from `start_date`/`end_date`; weather from
     `day.weather` keyed on `weather_code`; hero from `cover_image_url` via `PlacePhoto`. Budget shows
     `estimated_spend_eur` against `budget_eur` when a budget exists — labelled as an estimate against

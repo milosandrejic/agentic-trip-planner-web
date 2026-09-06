@@ -3,6 +3,8 @@ import {
   type ChipProps,
 } from "@mui/material";
 
+import { statusColors } from "@/theme/palette";
+
 export type StatusChipStatus =
   | "archived"
   | "completed"
@@ -32,6 +34,11 @@ const statusPresentation: Record<StatusChipStatus, StatusPresentation> = {
   ready: { label: "Active", variant: "active" },
   running: { label: "Planning", variant: "planning" },
 };
+
+/** The status accent, for surfaces where the chip's translucent fill has no contrast. */
+export function getStatusColor(status: StatusChipStatus): string {
+  return statusColors[statusPresentation[status].variant].foreground;
+}
 
 interface StatusChipProps extends Omit<ChipProps, "label" | "variant"> {
   status: StatusChipStatus;

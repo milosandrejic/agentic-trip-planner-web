@@ -3,30 +3,73 @@ import {
   Typography,
 } from "@mui/material";
 
-import type { BudgetEstimate } from "@/utils/budget";
+import type { BudgetSummary } from "@/utils/budget";
 import { formatCurrency } from "@/utils/format-currency";
 
+import { brandColors } from "@/theme/palette";
+
+interface BudgetFootnoteProps {
+  amount: number | null;
+  currency: string;
+  icon: string;
+}
+
+function BudgetFootnote({ amount, currency, icon }: BudgetFootnoteProps) {
+  if (amount === null) {
+    return null;
+  }
+
+  return (
+    <Typography
+      component="span"
+      sx={{
+        color: "rgba(24, 49, 83, 0.4)",
+        fontSize: 11,
+        lineHeight: "16.5px",
+      }}
+    >
+      {icon} {formatCurrency(amount, currency)}
+    </Typography>
+  );
+}
+
 interface BudgetPanelProps {
-  estimate: BudgetEstimate;
+  summary: BudgetSummary;
 }
 
 /**
- * The design shows a budget target with a "remaining" bar; the API has no target
- * (gap #2), so the headline is the estimated spend and the bar shows what makes it
- * up — flights, hotels, then activities.
+ * Three shapes, depending on what the planner captured:
+ *
+ * - budget and spend → spend against the stated budget, with a consumption bar
+ * - spend only → the estimate alone, with a composition bar
+ * - budget only → the budget alone, no bar (a bar reading zero would be a placeholder)
  */
-export function BudgetPanel({ estimate }: BudgetPanelProps) {
+export function BudgetPanel({ summary }: BudgetPanelProps) {
   const {
     activitiesTotal,
+    budget,
     currency,
     flightsTotal,
     hotelsTotal,
-    total,
-  } = estimate;
+    spend,
+  } = summary;
 
-  const flightsShare = total > 0 ? (flightsTotal / total) * 100 : 0;
-  const hotelsShare = total > 0 ? (hotelsTotal / total) * 100 : 0;
-  const activitiesShare = total > 0 ? (activitiesTotal / total) * 100 : 0;
+  const headline = spend ?? budget;
+  const hasBoth = budget !== null && spend !== null;
+  const spendShare = hasBoth && budget > 0 ? Math.min(100, (spend / budget) * 100) : 0;
+
+  const total = (flightsTotal ?? 0) + (hotelsTotal ?? 0) + (activitiesTotal ?? 0);
+  const share = (part: number | null): number => {
+    if (part === null || total <= 0) {
+      return 0;
+    }
+
+    return (part / total) * 100;
+  };
+
+  if (headline === null) {
+    return null;
+  }
 
   return (
     <Box>
@@ -50,7 +93,7 @@ export function BudgetPanel({ estimate }: BudgetPanelProps) {
             lineHeight: "33px",
           }}
         >
-          {formatCurrency(total, currency)}
+          {formatCurrency(headline, currency)}
         </Typography>
 
         <Typography
@@ -62,67 +105,76 @@ export function BudgetPanel({ estimate }: BudgetPanelProps) {
             lineHeight: "18px",
           }}
         >
-          Estimated
+          {
+            hasBoth ? `of ${formatCurrency(budget, currency)} budget` : (spend === null ? "Your budget" : "Estimated")
+          }
         </Typography>
       </Box>
 
-      <Box
-        sx={{
-          backgroundColor: "rgba(24, 49, 83, 0.08)",
-          borderRadius: "3px",
-          display: "flex",
-          height: 5,
-          marginTop: "8px",
-          overflow: "hidden",
-          width: "100%",
-        }}
-      >
+      {
+        spend !== null &&
         <Box
           sx={{
-            backgroundColor: "secondary.main",
-            width: `${flightsShare}%`,
+            backgroundColor: "rgba(24, 49, 83, 0.08)",
+            borderRadius: "3px",
+            display: "flex",
+            height: 5,
+            marginTop: "8px",
+            overflow: "hidden",
+            width: "100%",
           }}
-        />
-
-        <Box
-          sx={{
-            backgroundColor: "primary.main",
-            width: `${hotelsShare}%`,
-          }}
-        />
-
-        <Box
-          sx={{
-            backgroundColor: "rgba(24, 49, 83, 0.35)",
-            width: `${activitiesShare}%`,
-          }}
-        />
-      </Box>
-
-      <Box
-        sx={{
-          color: "rgba(24, 49, 83, 0.4)",
-          display: "flex",
-          fontSize: 11,
-          justifyContent: "space-between",
-          lineHeight: "16.5px",
-          paddingTop: "6px",
-        }}
-      >
-        <Typography
-          component="span"
-          sx={{ fontSize: "inherit", lineHeight: "inherit" }}
         >
-          ✈ {formatCurrency(flightsTotal, currency)}
-        </Typography>
+          {
+            hasBoth &&
+            <Box
+              sx={{
+                background: `linear-gradient(to right, ${brandColors.teal}, ${brandColors.navy})`,
+                width: `${spendShare}%`,
+              }}
+            />
+          }
 
-        <Typography
-          component="span"
-          sx={{ fontSize: "inherit", lineHeight: "inherit" }}
+          {
+            !hasBoth &&
+            <>
+              <Box sx={{ backgroundColor: "secondary.main", width: `${share(flightsTotal)}%` }} />
+
+              <Box sx={{ backgroundColor: "primary.main", width: `${share(hotelsTotal)}%` }} />
+
+              <Box
+                sx={{
+                  backgroundColor: "rgba(24, 49, 83, 0.35)",
+                  width: `${share(activitiesTotal)}%`,
+                }}
+              />
+            </>
+          }
+        </Box>
+      }
+
+      {
+        (flightsTotal !== null || hotelsTotal !== null) &&
+        <Box
+          sx={{
+            display: "flex",
+            gap: "12px",
+            justifyContent: "space-between",
+            paddingTop: "6px",
+          }}
         >
-          🏨 {formatCurrency(hotelsTotal, currency)}
-        </Typography>
-      </Box>
+          <BudgetFootnote
+            amount={flightsTotal}
+            currency={currency}
+            icon="✈"
+          />
+
+          <BudgetFootnote
+            amount={hotelsTotal}
+            currency={currency}
+            icon="🏨"
+          />
+        </Box>
+      }
     </Box>
   );
 }

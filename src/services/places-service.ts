@@ -45,14 +45,35 @@ function evictOldestPhoto(): void {
   }
 }
 
+/**
+ * `Activity.photo_url` and `cover_image_url` already arrive as full endpoint paths
+ * (`/places/photos/places/…/photos/…`), so they are requested as-is.
+ *
+ * The endpoint matches on `places/<id>/photos/<id>` with literal slashes, so a bare
+ * reference is joined per segment — `encodeURIComponent` on the whole value would escape
+ * the slashes and fail the server's pattern check.
+ */
+function toPhotoPath(photoReference: string): string {
+  if (photoReference.startsWith("/places/photos/")) {
+    return photoReference;
+  }
+
+  const segments = photoReference
+    .replace(/^\/+/, "")
+    .split("/")
+    .map((segment) => encodeURIComponent(segment))
+    .join("/");
+
+  return `/places/photos/${segments}`;
+}
+
 async function fetchPlacePhotoUrl(
   photoReference: string,
   maxWidthPx: number,
   cacheKey: string,
 ): Promise<string> {
-  const encodedPhotoReference = encodeURIComponent(photoReference);
   const params: PlacePhotoParams = { max_width_px: maxWidthPx };
-  const response = await apiClient.get<Blob>(`/places/photos/${encodedPhotoReference}`, {
+  const response = await apiClient.get<Blob>(toPhotoPath(photoReference), {
     params,
     responseType: "blob",
   });

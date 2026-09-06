@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 
 import type { Itinerary } from "@/types/itinerary";
 
-/** One column of the weather strip, derived from a day's free-text `weather_summary`. */
+/** One column of the weather strip, from the day's structured `weather`. */
 export interface WeatherDay {
   dayOfMonth: string;
   icon: string;
@@ -11,14 +11,15 @@ export interface WeatherDay {
 }
 
 /**
- * Where the hero image comes from (gap #5 — the API has no trip image field).
+ * Where the hero image comes from.
  *
- * Hotel `photo_url` is a plain URL and renders directly; an activity `photo_url` is a
- * Google Places reference that must go through `PlacePhoto`.
+ * `cover_image_url` is a bearer-protected photo path and must go through `PlacePhoto`;
+ * a hotel `photo_url` is an absolute provider URL and renders directly. With neither,
+ * there is no image — a stock photo of the wrong city is worse than none.
  */
 export type HeroPhoto =
-  | { kind: "fallback" }
-  | { kind: "reference"; reference: string }
+  | { kind: "none" }
+  | { kind: "path"; path: string }
   | { kind: "url"; url: string };
 
 const WEATHER_DAY_LIMIT = 3;
@@ -79,25 +80,34 @@ export function getWeatherDays(itinerary: Itinerary): WeatherDay[] {
     }));
 }
 
-/** "Sep 12 – Sep 19" across the itinerary's first and last dated day. */
-export function formatDateRange(itinerary: Itinerary): string {
-  const dates = itinerary.days.map((day) => day.date).filter(Boolean);
+/**
+ * "Sep 12 – Sep 19" from the itinerary's own dates, falling back to the day range for
+ * older snapshots. Null when neither exists, so the row omits itself.
+ */
+export function formatDateRange(itinerary: Itinerary): string | null {
+  const dayDates = itinerary.days.map((day) => day.date).filter(Boolean);
+  const start = itinerary.start_date ?? dayDates[0] ?? null;
+  const end = itinerary.end_date ?? dayDates[dayDates.length - 1] ?? null;
 
-  if (dates.length === 0) {
-    return "—";
+  if (!start) {
+    return null;
   }
 
-  const start = dayjs(dates[0]);
-  const end = dayjs(dates[dates.length - 1]);
-
-  if (dates.length === 1) {
-    return start.format("MMM D");
+  if (!end || end === start) {
+    return dayjs(start).format("MMM D");
   }
 
-  return `${start.format("MMM D")} – ${end.format("MMM D")}`;
+  return `${dayjs(start).format("MMM D")} – ${dayjs(end).format("MMM D")}`;
 }
 
 export function getHeroPhoto(itinerary: Itinerary): HeroPhoto {
+  if (itinerary.cover_image_url) {
+    return {
+      kind: "path",
+      path: itinerary.cover_image_url,
+    };
+  }
+
   const hotelPhoto = itinerary.hotels.find((hotel) => Boolean(hotel.photo_url));
 
   if (hotelPhoto?.photo_url) {
@@ -107,16 +117,18 @@ export function getHeroPhoto(itinerary: Itinerary): HeroPhoto {
     };
   }
 
-  for (const day of itinerary.days) {
-    const activityPhoto = day.activities.find((activity) => Boolean(activity.photo_url));
+  return { kind: "none" };
+}
 
-    if (activityPhoto?.photo_url) {
-      return {
-        kind: "reference",
-        reference: activityPhoto.photo_url,
-      };
-    }
+/** "2 people" / "Solo traveller". Null when the planner never captured a count. */
+export function formatTravelers(travelerCount: number | null): string | null {
+  if (travelerCount === null || travelerCount <= 0) {
+    return null;
   }
 
-  return { kind: "fallback" };
+  if (travelerCount === 1) {
+    return "Solo traveller";
+  }
+
+  return `${travelerCount} people`;
 }
