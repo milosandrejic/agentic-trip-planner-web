@@ -6,21 +6,13 @@ import {
   Typography,
 } from "@mui/material";
 import {
-  HotelRounded,
-  RestaurantRounded,
   AccessTimeRounded,
   LocationOnOutlined,
-  FlightTakeoffRounded,
-  AccountBalanceRounded,
 } from "@mui/icons-material";
 
-import type { ActivityKind } from "@/utils/activity-display";
-import {
-  formatDuration,
-  getActivityKind,
-} from "@/utils/activity-display";
+import { formatDuration } from "@/utils/activity-display";
 
-import { brandColors } from "@/theme/palette";
+import { getActivityTypeStyle } from "@/constants/activity-types";
 
 import type { Activity } from "@/types/itinerary";
 
@@ -29,30 +21,6 @@ import type { Activity } from "@/types/itinerary";
  * ("Morning" | "Afternoon" | "Evening"), so the column is widened to fit the words.
  */
 const TIME_COLUMN_WIDTH = 68;
-
-interface ActivityKindStyle {
-  color: string;
-  icon: ComponentType<SvgIconProps>;
-}
-
-const kindStyles: Record<ActivityKind, ActivityKindStyle> = {
-  attraction: {
-    color: brandColors.navy,
-    icon: AccountBalanceRounded,
-  },
-  dining: {
-    color: brandColors.orange,
-    icon: RestaurantRounded,
-  },
-  lodging: {
-    color: brandColors.teal,
-    icon: HotelRounded,
-  },
-  transport: {
-    color: brandColors.clay,
-    icon: FlightTakeoffRounded,
-  },
-};
 
 interface ActivityMetaProps {
   icon: ComponentType<SvgIconProps>;
@@ -94,8 +62,7 @@ interface ActivityItemProps {
 }
 
 export function ActivityItem({ activity, isLast }: ActivityItemProps) {
-  const kind = getActivityKind(activity);
-  const { color, icon: KindIcon } = kindStyles[kind];
+  const { color, icon: KindIcon } = getActivityTypeStyle(activity.activity_type);
   const duration = formatDuration(activity.duration_hours ?? 0);
 
   return (

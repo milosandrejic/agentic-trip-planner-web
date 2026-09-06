@@ -424,7 +424,7 @@ first-class field — see *Newly available* in `docs/API.md`.
 > and wire the new fields into the screens that were faking them. **Run this before Phase 10** —
 > polishing screens that are about to change their data source wastes the work.
 
-- [ ] **9.1 Retype against the v2 contract**
+- [x] **9.1 Retype against the v2 contract**
   - **Goal:** Bring `src/types/` in line with the regenerated schema. Breaking: `hotel.rating` →
     `star_rating` (0–5) + `guest_rating` (0–10); `day.weather_summary` → `day.weather`
     (`DayWeather`); `activity.time` always `HH:MM` or null. New: `Itinerary.country_code`,
@@ -438,17 +438,18 @@ first-class field — see *Newly available* in `docs/API.md`.
   - **Depends:** —
   - **Commit:** `feat(types): adopt the v2 api contract`
 
-- [ ] **9.2 Delete the superseded derivations**
-  - **Goal:** Remove client-side code the API now replaces, rather than leaving it dead: weather
-    string parsing (`getWeatherIcon`/`getTemperature`), the hero-photo fallback chain, keyword
-    category matching (`kindKeywords`), `humanizeCategory`, and the flight outbound/return-date
-    substitute. Let `tsc` drive the sweep.
+- [x] **9.2 Delete the superseded derivations** — *absorbed into the tasks that replace them*
+  - **Outcome:** A standalone deletion commit is not viable — removing a derivation without its
+    replacement leaves the tree uncompilable. The weather string parsing had to go in **9.1**
+    (`weather_summary` no longer exists as a field); keyword category matching goes with **9.3**,
+    the hero-photo fallback and client-side budget with **9.6**, and the flight date substitute
+    with **9.4**. Each deletion ships alongside the field that supersedes it.
   - **Files:** `src/utils/trip-overview.ts`, `src/utils/activity-display.ts`,
     `src/utils/itinerary-summary.ts`, `src/utils/flight-display.ts`, `src/utils/hotel-display.ts`.
   - **Depends:** 9.1
   - **Commit:** `refactor: drop derivations superseded by the v2 contract`
 
-- [ ] **9.3 Activity type → icons and map pins**
+- [x] **9.3 Activity type → icons and map pins**
   - **Goal:** Map the 17-value `activity_type` enum to timeline icons and marker colours, replacing
     the 4-way keyword guess. The enum is finer than the design's three legend groups
     (Hotel / Attraction / Restaurant), so the collapse happens here and is the single source for both
@@ -523,6 +524,11 @@ first-class field — see *Newly available* in `docs/API.md`.
     clarification UI must survive repeated rounds rather than assuming one question. Disable the
     composer for the whole turn, surface `409` as "still working" rather than an error, and give the
     ≤120 s wait a real progress affordance (see 10.3).
+  - **Also fix the "Trip created" banner**, which is currently fabricated: it is hardcoded at
+    `index === 1` rather than anchored to the message that actually produced an itinerary, and it
+    reads only "Trip created" where the design shows `Trip Created — Rome, Italy` with a summary
+    line. Anchor it to the first assistant message carrying an `itinerary` and populate it from
+    `destination` and `total_days`. A thread that never produced a plan must not show it at all.
   - **Files:** `src/components/workspace/chat/*`, `src/hooks/use-thread.ts`,
     `src/utils/planner-result.ts`.
   - **Depends:** 9.1

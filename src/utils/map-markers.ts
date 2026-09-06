@@ -1,11 +1,12 @@
-import { getActivityKind } from "@/utils/activity-display";
-
 import { brandColors } from "@/theme/palette";
+import {
+  type MapMarkerKind,
+  getActivityTypeStyle,
+} from "@/constants/activity-types";
 
 import type { Itinerary } from "@/types/itinerary";
 
-/** The three marker groups the design's legend names. */
-export type MapMarkerKind = "attraction" | "hotel" | "restaurant";
+export type { MapMarkerKind };
 
 export interface MapMarker {
   id: string;
@@ -71,11 +72,9 @@ export function buildMapMarkers(itinerary: Itinerary): MapMarker[] {
         continue;
       }
 
-      const activityKind = getActivityKind(activity);
-
       markers.push({
         id: `activity-${activity.id}`,
-        kind: activityKind === "dining" ? "restaurant" : "attraction",
+        kind: getActivityTypeStyle(activity.activity_type).mapKind,
         latitude: activity.latitude ?? 0,
         longitude: activity.longitude ?? 0,
         title: activity.description,
