@@ -65,6 +65,12 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
   const { color, icon: KindIcon } = getActivityTypeStyle(activity.activity_type);
   const duration = formatDuration(activity.duration_hours ?? 0);
 
+  // The API returns whole sentences here, not the short labels the design mocks up, so
+  // the description wraps instead of being clipped — it is the row's primary content.
+  const meta = [activity.venue_name, activity.note].filter(
+    (value): value is string => Boolean(value),
+  );
+
   return (
     <Box
       sx={{
@@ -111,7 +117,7 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
       <Box sx={{ minWidth: 0, paddingBottom: "6px" }}>
         <Box
           sx={{
-            alignItems: "center",
+            alignItems: "flex-start",
             display: "flex",
             minWidth: 0,
           }}
@@ -137,6 +143,7 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
               flexShrink: 0,
               fontSize: 14,
               marginRight: "8px",
+              marginTop: "3px",
             }}
           />
 
@@ -147,9 +154,6 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
               fontSize: 14,
               fontWeight: 500,
               lineHeight: "19.6px",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
             }}
           >
             {activity.description}
@@ -167,7 +171,17 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
           }}
         >
           {
-            activity.address &&
+            meta.map((text) => (
+              <ActivityMeta
+                key={text}
+                icon={LocationOnOutlined}
+                text={text}
+              />
+            ))
+          }
+
+          {
+            meta.length === 0 && activity.address &&
             <ActivityMeta
               icon={LocationOnOutlined}
               text={activity.address}

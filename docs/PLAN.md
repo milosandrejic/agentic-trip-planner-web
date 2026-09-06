@@ -501,7 +501,7 @@ first-class field — see *Newly available* in `docs/API.md`.
   - **Depends:** 9.1
   - **Commit:** `feat(history): show cover, flag and dates on trip cards`
 
-- [ ] **9.8 Day titles, venue and note**
+- [x] **9.8 Day titles, venue and note**
   - **Goal:** Day headers use `DayPlan.title` ("Arrival & Trastevere") falling back to `location`.
     The activity meta row splits `venue_name` from `note` — currently both collapse into `address`.
   - **Files:** `src/components/workspace/itinerary/day-accordion.tsx`,

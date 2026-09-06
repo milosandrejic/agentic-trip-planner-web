@@ -20,6 +20,10 @@ interface DayAccordionProps {
 }
 
 export function DayAccordion({ day, isExpanded, onToggle }: DayAccordionProps) {
+  // `title` is the planner's own name for the day ("Arrival & Trastevere"); `location`
+  // is a bare place string and repeats the country on every row, so it is the fallback.
+  const heading = day.title ?? day.location;
+
   return (
     <Accordion
       expanded={isExpanded}
@@ -72,7 +76,7 @@ export function DayAccordion({ day, isExpanded, onToggle }: DayAccordionProps) {
               whiteSpace: "nowrap",
             }}
           >
-            Day {day.day} — {day.location}
+            Day {day.day} — {heading}
           </Typography>
         </Box>
       </AccordionSummary>
