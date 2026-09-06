@@ -1,6 +1,9 @@
 "use client";
 
-import { CloseRounded } from "@mui/icons-material";
+import {
+  StarRounded,
+  CloseRounded,
+} from "@mui/icons-material";
 import {
   Box,
   Dialog,
@@ -10,8 +13,11 @@ import {
   DialogContent,
 } from "@mui/material";
 
-import { getStayNights } from "@/utils/hotel-display";
 import { formatCurrency } from "@/utils/format-currency";
+import {
+  getStarCount,
+  getStayNights,
+} from "@/utils/hotel-display";
 
 import { brandColors } from "@/theme/palette";
 
@@ -32,6 +38,8 @@ interface HotelCardProps {
  * estimated-price marker when `is_estimated` is set.
  */
 function HotelCard({ hotel, isRecommended }: HotelCardProps) {
+  const stars = getStarCount(hotel.star_rating);
+
   return (
     <Box
       sx={{
@@ -105,6 +113,26 @@ function HotelCard({ hotel, isRecommended }: HotelCardProps) {
                 paddingTop: "3px",
               }}
             >
+              {
+                stars > 0 &&
+                <Box
+                  aria-label={`${stars} star hotel`}
+                  sx={{ display: "flex", gap: "1px" }}
+                >
+                  {
+                    Array.from({ length: stars }, (_value, index) => (
+                      <StarRounded
+                        key={index}
+                        sx={{
+                          color: "warning.main",
+                          fontSize: 11,
+                        }}
+                      />
+                    ))
+                  }
+                </Box>
+              }
+
               {
                 hotel.guest_rating !== null && hotel.guest_rating > 0 &&
                 <Typography

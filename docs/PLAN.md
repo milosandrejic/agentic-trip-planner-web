@@ -470,7 +470,7 @@ first-class field — see *Newly available* in `docs/API.md`.
   - **Depends:** 9.1
   - **Commit:** `feat(dialogs): show real flight route and times`
 
-- [ ] **9.5 Hotel card: star class vs guest score**
+- [x] **9.5 Hotel card: star class vs guest score**
   - **Goal:** Restore the star row from `star_rating` (0–5 property class) and the ★8.9 badge from
     `guest_rating` (0–10 review score) — two distinct fields that were previously conflated.
   - **Files:** `src/components/dialogs/hotels-dialog.tsx`, `src/utils/hotel-display.ts`,
