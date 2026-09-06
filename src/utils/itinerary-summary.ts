@@ -1,4 +1,5 @@
 import { formatCurrency } from "@/utils/format-currency";
+import { formatFlightRoute } from "@/utils/flight-display";
 
 import type {
   Day,
@@ -98,10 +99,7 @@ function getTopCategories(days: readonly Day[]): string[] {
     .map(([category]) => humanizeCategory(category));
 }
 
-/**
- * The API exposes no airport codes on `Flight`, so the caption names the cheapest
- * airline rather than the "LHR → FCO" route shown in the design.
- */
+/** Captions with the route the design shows, falling back to the airline without codes. */
 function buildFlightsEntry(flights: readonly Flight[]): ItinerarySummaryEntry {
   const cheapest = getCheapestFlight(flights);
 
@@ -113,8 +111,10 @@ function buildFlightsEntry(flights: readonly Flight[]): ItinerarySummaryEntry {
     };
   }
 
+  const route = formatFlightRoute(cheapest.origin, cheapest.destination);
+
   return {
-    caption: `${pluralize(flights.length, "option")} · ${cheapest.airline}`,
+    caption: `${pluralize(flights.length, "option")} · ${route || cheapest.airline}`,
     isAvailable: true,
     value: `from ${formatCurrency(cheapest.price, cheapest.currency ?? "EUR")}`,
   };

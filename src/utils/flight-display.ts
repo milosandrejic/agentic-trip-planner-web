@@ -32,6 +32,35 @@ export function formatStops(stops: number): string {
   return `${stops} stops`;
 }
 
+/**
+ * Reads the clock portion straight out of the ISO string instead of parsing it.
+ *
+ * Airline times are local to their own airport — a departure board in London shows
+ * 07:15 regardless of where you are reading it. Passing the value through a
+ * timezone-aware parser would shift it to the viewer's zone, which is wrong.
+ */
+export function formatFlightTime(value: string | null): string {
+  if (!value) {
+    return "";
+  }
+
+  const match = value.match(/T(\d{2}:\d{2})/);
+
+  return match ? match[1] : "";
+}
+
+/** "LHR → FCO", or empty when either code is missing. */
+export function formatFlightRoute(
+  origin: string | null,
+  destination: string | null,
+): string {
+  if (!origin || !destination) {
+    return "";
+  }
+
+  return `${origin} → ${destination}`;
+}
+
 /** Id of the cheapest flight, which carries the "BEST VALUE" chip. */
 export function getBestValueFlightId(flights: readonly Flight[]): string | null {
   const cheapest = flights.reduce<Flight | null>((best, flight) => {

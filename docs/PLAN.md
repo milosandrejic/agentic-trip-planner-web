@@ -459,7 +459,7 @@ first-class field — see *Newly available* in `docs/API.md`.
   - **Depends:** 9.1
   - **Commit:** `feat(itinerary): drive icons and map pins from activity_type`
 
-- [ ] **9.4 Flight card: real route and times**
+- [x] **9.4 Flight card: real route and times**
   - **Goal:** Render the design as drawn — `07:15 → 11:30` from `departs_at`/`arrives_at` and
     `LHR → FCO` from `origin`/`destination`, with the connector between them. Degrade to the
     duration-only form when either is null (older trips) — omit the times, do not show a dash.

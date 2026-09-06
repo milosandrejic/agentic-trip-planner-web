@@ -15,6 +15,8 @@ import {
 import { formatCurrency } from "@/utils/format-currency";
 import {
   formatStops,
+  formatFlightTime,
+  formatFlightRoute,
   formatFlightDuration,
   getBestValueFlightId,
 } from "@/utils/flight-display";
@@ -39,11 +41,18 @@ interface FlightCardProps {
 }
 
 /**
- * Shows outbound/return dates at the connector ends. The v2 contract adds `origin`,
- * `destination`, `departs_at` and `arrives_at` — task 9.4 renders the real route and times.
+ * The connector ends show the outbound leg's departure and arrival times when the API
+ * has them, and fall back to the trip's outbound/return dates when it does not — older
+ * itineraries predate these fields. The route line is omitted entirely without codes.
  */
 function FlightCard({ flight, isBestValue }: FlightCardProps) {
   const duration = formatFlightDuration(flight.duration_min ?? 0);
+  const departure = formatFlightTime(flight.departs_at);
+  const arrival = formatFlightTime(flight.arrives_at);
+  const route = formatFlightRoute(flight.origin, flight.destination);
+
+  const startLabel = departure || formatFlightDate(flight.outbound_date);
+  const endLabel = arrival || formatFlightDate(flight.return_date);
 
   return (
     <Box
@@ -115,7 +124,7 @@ function FlightCard({ flight, isBestValue }: FlightCardProps) {
                 lineHeight: "21px",
               }}
             >
-              {formatFlightDate(flight.outbound_date)}
+              {startLabel}
             </Typography>
 
             <Box
@@ -181,9 +190,24 @@ function FlightCard({ flight, isBestValue }: FlightCardProps) {
                 lineHeight: "21px",
               }}
             >
-              {formatFlightDate(flight.return_date)}
+              {endLabel}
             </Typography>
           </Box>
+
+          {
+            Boolean(route) &&
+            <Typography
+              component="p"
+              sx={{
+                color: "rgba(24, 49, 83, 0.4)",
+                fontSize: 12,
+                lineHeight: "18px",
+                paddingTop: "4px",
+              }}
+            >
+              {route}
+            </Typography>
+          }
         </Box>
 
         <Box sx={{ flexShrink: 0, textAlign: "right" }}>
@@ -242,16 +266,43 @@ export function FlightsDialog({ destination, flights, onClose }: FlightsDialogPr
     >
       <DialogTitle
         sx={{
-          alignItems: "center",
+          alignItems: "flex-start",
           display: "flex",
-          fontWeight: 800,
           gap: "16px",
           justifyContent: "space-between",
-          letterSpacing: "-0.54px",
           padding: "20px 24px",
         }}
       >
-        ✈️ Flights to {destination}
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            component="span"
+            sx={{
+              color: "text.primary",
+              display: "block",
+              fontFamily: "var(--font-manrope)",
+              fontSize: 18,
+              fontWeight: 800,
+              letterSpacing: "-0.54px",
+              lineHeight: "27px",
+            }}
+          >
+            ✈️ Flights to {destination}
+          </Typography>
+
+          <Typography
+            component="span"
+            sx={{
+              color: "rgba(24, 49, 83, 0.5)",
+              display: "block",
+              fontSize: 13,
+              fontWeight: 400,
+              lineHeight: "19.5px",
+              marginTop: "2px",
+            }}
+          >
+            {dateRange ? `${optionsLabel} · ${dateRange}` : optionsLabel}
+          </Typography>
+        </Box>
 
         <IconButton
           aria-label="Close"
@@ -267,24 +318,13 @@ export function FlightsDialog({ destination, flights, onClose }: FlightsDialogPr
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ padding: "20px 24px" }}>
-        <Typography
-          component="p"
-          sx={{
-            color: "rgba(24, 49, 83, 0.5)",
-            fontSize: 14,
-            lineHeight: "21px",
-          }}
-        >
-          {dateRange ? `${optionsLabel} · ${dateRange}` : optionsLabel}
-        </Typography>
-
+      <DialogContent sx={{ padding: "0 24px 24px" }}>
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
             gap: "12px",
-            paddingTop: "20px",
+            paddingTop: "22px",
           }}
         >
           {

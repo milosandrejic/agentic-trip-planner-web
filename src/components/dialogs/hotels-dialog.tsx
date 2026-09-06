@@ -267,16 +267,43 @@ export function HotelsDialog({ destination, hotels, onClose }: HotelsDialogProps
     >
       <DialogTitle
         sx={{
-          alignItems: "center",
+          alignItems: "flex-start",
           display: "flex",
-          fontWeight: 800,
           gap: "16px",
           justifyContent: "space-between",
-          letterSpacing: "-0.54px",
           padding: "20px 24px",
         }}
       >
-        🏨 Hotels in {destination}
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            component="span"
+            sx={{
+              color: "text.primary",
+              display: "block",
+              fontFamily: "var(--font-manrope)",
+              fontSize: 18,
+              fontWeight: 800,
+              letterSpacing: "-0.54px",
+              lineHeight: "27px",
+            }}
+          >
+            🏨 Hotels in {destination}
+          </Typography>
+
+          <Typography
+            component="span"
+            sx={{
+              color: "rgba(24, 49, 83, 0.5)",
+              display: "block",
+              fontSize: 13,
+              fontWeight: 400,
+              lineHeight: "19.5px",
+              marginTop: "2px",
+            }}
+          >
+            {nights === null ? countLabel : `${countLabel} · ${nightsLabel}`}
+          </Typography>
+        </Box>
 
         <IconButton
           aria-label="Close"
@@ -292,24 +319,13 @@ export function HotelsDialog({ destination, hotels, onClose }: HotelsDialogProps
         </IconButton>
       </DialogTitle>
 
-      <DialogContent sx={{ padding: "20px 24px" }}>
-        <Typography
-          component="p"
-          sx={{
-            color: "rgba(24, 49, 83, 0.5)",
-            fontSize: 14,
-            lineHeight: "21px",
-          }}
-        >
-          {nights === null ? countLabel : `${countLabel} · ${nightsLabel}`}
-        </Typography>
-
+      <DialogContent sx={{ padding: "0 24px 24px" }}>
         <Box
           sx={{
             display: "flex",
             flexDirection: "column",
             gap: "16px",
-            paddingTop: "20px",
+            paddingTop: "22px",
           }}
         >
           {
