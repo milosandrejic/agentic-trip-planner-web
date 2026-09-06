@@ -121,20 +121,23 @@ function SummaryCard({ action, entry, icon: Icon, label, onOpen, tone }: Summary
         </Typography>
       </Box>
 
-      <Typography
-        component="p"
-        sx={{
-          color: "text.primary",
-          fontFamily: "var(--font-manrope)",
-          fontSize: 22,
-          fontWeight: 800,
-          letterSpacing: "-0.66px",
-          lineHeight: "22px",
-          marginTop: "12px",
-        }}
-      >
-        {entry.value}
-      </Typography>
+      {
+        entry.value !== "" &&
+        <Typography
+          component="p"
+          sx={{
+            color: "text.primary",
+            fontFamily: "var(--font-manrope)",
+            fontSize: 22,
+            fontWeight: 800,
+            letterSpacing: "-0.66px",
+            lineHeight: "22px",
+            marginTop: "12px",
+          }}
+        >
+          {entry.value}
+        </Typography>
+      }
 
       <Typography
         component="p"
@@ -142,7 +145,7 @@ function SummaryCard({ action, entry, icon: Icon, label, onOpen, tone }: Summary
           color: "rgba(24, 49, 83, 0.55)",
           fontSize: 13,
           lineHeight: "18.2px",
-          marginTop: "3px",
+          marginTop: entry.value === "" ? "12px" : "3px",
         }}
       >
         {entry.caption}

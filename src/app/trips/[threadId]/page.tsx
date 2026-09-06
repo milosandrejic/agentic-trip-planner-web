@@ -31,8 +31,11 @@ import {
   useSendMessage,
 } from "@/hooks/use-thread";
 
-import { getLatestItinerary } from "@/utils/planner-result";
 import { buildItinerarySummary } from "@/utils/itinerary-summary";
+import {
+  getLatestItinerary,
+  isClarificationResult,
+} from "@/utils/planner-result";
 
 import { WorkspaceLayout } from "@/layouts/workspace-layout/workspace-layout";
 
@@ -133,6 +136,11 @@ function ThreadWorkspace({ threadId }: { threadId: string }) {
   const messages = [...data.messages].reverse();
   const itinerary = getLatestItinerary(messages);
 
+  // A partial answer produces another clarification rather than a plan, so the fields
+  // the planner still needs come from the most recent turn's own result.
+  const lastResult = sendMessage.data?.result;
+  const missingFields = lastResult && isClarificationResult(lastResult) ? lastResult.clarification.missing_fields : undefined;
+
   const deleteAction = (
     <Tooltip title="Delete trip">
       <IconButton
@@ -167,7 +175,9 @@ function ThreadWorkspace({ threadId }: { threadId: string }) {
         action={deleteAction}
         isLoading={sendMessage.isPending}
         messages={messages}
+        missingFields={missingFields}
         onSendMessage={handleSendMessage}
+        sendError={sendMessage.error}
         threadTitle={data.thread.title}
       >
         {

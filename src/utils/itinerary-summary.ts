@@ -1,6 +1,8 @@
 import { formatCurrency } from "@/utils/format-currency";
 import { formatFlightRoute } from "@/utils/flight-display";
 
+import { activityTypeLabels } from "@/constants/activity-types";
+
 import type {
   Day,
   Hotel,
@@ -27,7 +29,6 @@ export interface ItinerarySummary {
   places: ItinerarySummaryEntry;
 }
 
-const EMPTY_VALUE = "Not available";
 const PLACE_CATEGORY_LIMIT = 3;
 
 function pluralize(count: number, singular: string): string {
@@ -74,29 +75,28 @@ function countActivities(days: readonly Day[]): number {
   return days.reduce((total, day) => total + day.activities.length, 0);
 }
 
-/** Categories arrive already human-readable ("Art museum"); just normalise the case. */
-function humanizeCategory(category: string): string {
-  const trimmed = category.trim();
-
-  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
-}
-
-/** Most frequent Google place categories across every activity, in descending order. */
-function getTopCategories(days: readonly Day[]): string[] {
+/**
+ * Summarises the plan by `activity_type` rather than Google's `categories`.
+ *
+ * Categories are inconsistent between trips — some return readable labels, others raw
+ * types — and their most frequent values ("point_of_interest", "establishment") describe
+ * nothing. The enum is stable and every activity carries one.
+ */
+function getTopActivityLabels(days: readonly Day[]): string[] {
   const occurrences = new Map<string, number>();
 
   for (const day of days) {
     for (const activity of day.activities) {
-      for (const category of activity.categories) {
-        occurrences.set(category, (occurrences.get(category) ?? 0) + 1);
-      }
+      const label = activityTypeLabels[activity.activity_type] ?? activityTypeLabels.other;
+
+      occurrences.set(label, (occurrences.get(label) ?? 0) + 1);
     }
   }
 
   return Array.from(occurrences.entries())
     .sort(([, left], [, right]) => right - left)
     .slice(0, PLACE_CATEGORY_LIMIT)
-    .map(([category]) => humanizeCategory(category));
+    .map(([label]) => label);
 }
 
 /** Captions with the route the design shows, falling back to the airline without codes. */
@@ -105,9 +105,9 @@ function buildFlightsEntry(flights: readonly Flight[]): ItinerarySummaryEntry {
 
   if (!cheapest || cheapest.price === null) {
     return {
-      caption: "No flights in this plan yet",
+      caption: "No flight options were found for these dates.",
       isAvailable: false,
-      value: EMPTY_VALUE,
+      value: "",
     };
   }
 
@@ -125,9 +125,9 @@ function buildHotelsEntry(hotels: readonly Hotel[]): ItinerarySummaryEntry {
 
   if (!cheapest || cheapest.nightly_price === null) {
     return {
-      caption: "No hotels in this plan yet",
+      caption: "No places to stay were found for these dates.",
       isAvailable: false,
-      value: EMPTY_VALUE,
+      value: "",
     };
   }
 
@@ -144,9 +144,9 @@ function buildHotelsEntry(hotels: readonly Hotel[]): ItinerarySummaryEntry {
 function buildItineraryEntry(itinerary: Itinerary): ItinerarySummaryEntry {
   if (itinerary.days.length === 0) {
     return {
-      caption: "The day-by-day plan is still being prepared",
+      caption: "The day-by-day plan is still being prepared.",
       isAvailable: false,
-      value: EMPTY_VALUE,
+      value: "",
     };
   }
 
@@ -162,13 +162,13 @@ function buildPlacesEntry(itinerary: Itinerary): ItinerarySummaryEntry {
 
   if (highlights === 0) {
     return {
-      caption: "No places in this plan yet",
+      caption: "No places are pinned to this plan yet.",
       isAvailable: false,
-      value: EMPTY_VALUE,
+      value: "",
     };
   }
 
-  const categories = getTopCategories(itinerary.days);
+  const categories = getTopActivityLabels(itinerary.days);
 
   return {
     caption: categories.length > 0 ? categories.join(" · ") : itinerary.destination,

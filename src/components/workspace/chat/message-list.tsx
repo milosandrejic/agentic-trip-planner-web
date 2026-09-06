@@ -15,6 +15,11 @@ interface MessageListProps {
 }
 
 export function MessageList({ action, messages, threadTitle }: MessageListProps) {
+  // Anchored to the message that actually produced a plan, rather than to a fixed
+  // position — a thread that only ever got clarifications shows no banner at all.
+  const tripCreatedIndex = messages.findIndex((message) => message.itinerary !== null);
+  const createdItinerary = tripCreatedIndex === -1 ? null : messages[tripCreatedIndex].itinerary;
+
   return (
     <Box
       sx={{
@@ -57,7 +62,7 @@ export function MessageList({ action, messages, threadTitle }: MessageListProps)
         messages.map((message, index) => (
           <Box key={message.id}>
             {
-              index === 1 &&
+              index === tripCreatedIndex && createdItinerary !== null &&
               <Box
                 sx={{
                   backgroundColor: "rgba(47, 156, 149, 0.07)",
@@ -76,7 +81,19 @@ export function MessageList({ action, messages, threadTitle }: MessageListProps)
                     fontWeight: 600,
                   }}
                 >
-                  Trip created
+                  Trip created — {createdItinerary.destination}
+                </Typography>
+
+                <Typography
+                  component="p"
+                  sx={{
+                    color: "rgba(24, 49, 83, 0.5)",
+                    fontSize: 12,
+                    lineHeight: "18px",
+                    paddingTop: "2px",
+                  }}
+                >
+                  {createdItinerary.total_days}-day itinerary
                 </Typography>
               </Box>
             }

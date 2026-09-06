@@ -519,7 +519,7 @@ first-class field — see *Newly available* in `docs/API.md`.
   - **Depends:** 9.4, 9.5, 9.6
   - **Commit:** `feat(ux): label estimates and search links honestly`
 
-- [ ] **9.10 Clarification rounds, 409 and the long turn**
+- [x] **9.10 Clarification rounds, 409 and the long turn**
   - **Goal:** The planner asks before it plans, and a partial answer asks again — so the
     clarification UI must survive repeated rounds rather than assuming one question. Disable the
     composer for the whole turn, surface `409` as "still working" rather than an error, and give the

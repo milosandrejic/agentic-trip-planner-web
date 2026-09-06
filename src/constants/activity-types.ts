@@ -65,6 +65,27 @@ export const activityTypeStyles: Record<ActivityType, ActivityTypeStyle> = {
  * Falls back to `other` rather than throwing — older itineraries are snapshots that
  * predate the enum, and a value we do not recognise must still render.
  */
+/** Short labels for summarising what kinds of places a plan contains. */
+export const activityTypeLabels: Record<ActivityType, string> = {
+  cafe: "Cafés",
+  church: "Churches",
+  class: "Classes",
+  drinks: "Bars",
+  flight: "Flights",
+  hotel: "Stays",
+  landmark: "Landmarks",
+  meal: "Restaurants",
+  museum: "Museums",
+  nature: "Nature",
+  nightlife: "Nightlife",
+  other: "Places",
+  shopping: "Shopping",
+  train: "Trains",
+  transfer: "Transfers",
+  viewpoint: "Viewpoints",
+  walk: "Walks",
+};
+
 export function getActivityTypeStyle(activityType: ActivityType): ActivityTypeStyle {
   return activityTypeStyles[activityType] ?? activityTypeStyles.other;
 }
