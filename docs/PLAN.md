@@ -493,7 +493,7 @@ first-class field — see *Newly available* in `docs/API.md`.
   - **Depends:** 9.1, 9.2
   - **Commit:** `feat(workspace): build the trip overview from v2 fields`
 
-- [ ] **9.7 Sidebar trip cards**
+- [x] **9.7 Sidebar trip cards**
   - **Goal:** The design's card, now that the data exists: `cover_image_url` thumbnail, country flag
     from `country_code`, and the `start_date`–`end_date` range. Handle the null case — a thread has
     no trip until its first turn completes.

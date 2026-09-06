@@ -15,7 +15,7 @@ import {
   getHeroPhoto,
   getWeatherDays,
   formatTravelers,
-  formatDateRange,
+  formatItineraryDateRange,
 } from "@/utils/trip-overview";
 
 import { brandColors } from "@/theme/palette";
@@ -147,7 +147,7 @@ export function TripOverview({
   const heroPhoto = getHeroPhoto(itinerary);
   const weatherDays = getWeatherDays(itinerary);
   const budget = buildBudgetSummary(itinerary);
-  const dateRange = formatDateRange(itinerary);
+  const dateRange = formatItineraryDateRange(itinerary);
   const travelers = formatTravelers(itinerary.traveler_count);
 
   const heroImageStyles = {

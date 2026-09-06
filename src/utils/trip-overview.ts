@@ -1,5 +1,7 @@
 import dayjs from "dayjs";
 
+import { formatDateRange } from "@/utils/format-date-range";
+
 import type { Itinerary } from "@/types/itinerary";
 
 /** One column of the weather strip, from the day's structured `weather`. */
@@ -81,23 +83,16 @@ export function getWeatherDays(itinerary: Itinerary): WeatherDay[] {
 }
 
 /**
- * "Sep 12 – Sep 19" from the itinerary's own dates, falling back to the day range for
- * older snapshots. Null when neither exists, so the row omits itself.
+ * The itinerary's own dates, falling back to the day range for older snapshots that
+ * predate `start_date` / `end_date`.
  */
-export function formatDateRange(itinerary: Itinerary): string | null {
+export function formatItineraryDateRange(itinerary: Itinerary): string | null {
   const dayDates = itinerary.days.map((day) => day.date).filter(Boolean);
-  const start = itinerary.start_date ?? dayDates[0] ?? null;
-  const end = itinerary.end_date ?? dayDates[dayDates.length - 1] ?? null;
 
-  if (!start) {
-    return null;
-  }
-
-  if (!end || end === start) {
-    return dayjs(start).format("MMM D");
-  }
-
-  return `${dayjs(start).format("MMM D")} – ${dayjs(end).format("MMM D")}`;
+  return formatDateRange(
+    itinerary.start_date ?? dayDates[0] ?? null,
+    itinerary.end_date ?? dayDates[dayDates.length - 1] ?? null,
+  );
 }
 
 export function getHeroPhoto(itinerary: Itinerary): HeroPhoto {
