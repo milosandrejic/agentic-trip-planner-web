@@ -6,21 +6,20 @@ import {
   Typography,
 } from "@mui/material";
 import {
+  SellOutlined,
   AccessTimeRounded,
   LocationOnOutlined,
 } from "@mui/icons-material";
 
+import { formatCurrency } from "@/utils/format-currency";
 import { formatDuration } from "@/utils/activity-display";
 
 import { getActivityTypeStyle } from "@/constants/activity-types";
 
 import type { Activity } from "@/types/itinerary";
 
-/**
- * The design puts a clock time in this column; the API only exposes a bucket
- * ("Morning" | "Afternoon" | "Evening"), so the column is widened to fit the words.
- */
-const TIME_COLUMN_WIDTH = 68;
+/** Sized for `HH:MM`, matching the design now that the API returns clock times. */
+const TIME_COLUMN_WIDTH = 50;
 
 interface ActivityMetaProps {
   icon: ComponentType<SvgIconProps>;
@@ -70,6 +69,10 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
   const meta = [activity.venue_name, activity.note].filter(
     (value): value is string => Boolean(value),
   );
+
+  // No provider prices activities, so any figure is a model estimate — the approximation
+  // sign is the marker, and `price_eur` is per person unlike every other price.
+  const price = activity.price_eur === null ? null : `≈ ${formatCurrency(activity.price_eur, "EUR")} per person`;
 
   return (
     <Box
@@ -193,6 +196,14 @@ export function ActivityItem({ activity, isLast }: ActivityItemProps) {
             <ActivityMeta
               icon={AccessTimeRounded}
               text={duration}
+            />
+          }
+
+          {
+            price !== null &&
+            <ActivityMeta
+              icon={SellOutlined}
+              text={price}
             />
           }
         </Box>

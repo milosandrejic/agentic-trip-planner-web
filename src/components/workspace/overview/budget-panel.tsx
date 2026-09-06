@@ -106,7 +106,7 @@ export function BudgetPanel({ summary }: BudgetPanelProps) {
           }}
         >
           {
-            hasBoth ? `of ${formatCurrency(budget, currency)} budget` : (spend === null ? "Your budget" : "Estimated")
+            hasBoth ? `est. of ${formatCurrency(budget, currency)}` : (spend === null ? "Your budget" : "Estimated")
           }
         </Typography>
       </Box>
@@ -150,6 +150,21 @@ export function BudgetPanel({ summary }: BudgetPanelProps) {
             </>
           }
         </Box>
+      }
+
+      {
+        spend !== null &&
+        <Typography
+          component="p"
+          sx={{
+            color: "rgba(24, 49, 83, 0.35)",
+            fontSize: 11,
+            lineHeight: "16.5px",
+            paddingTop: "6px",
+          }}
+        >
+          Estimate only — cheapest flight and stay, plus priced activities.
+        </Typography>
       }
 
       {

@@ -509,7 +509,7 @@ first-class field — see *Newly available* in `docs/API.md`.
   - **Depends:** 9.1
   - **Commit:** `feat(itinerary): render day titles, venue and note`
 
-- [ ] **9.9 Honest labelling for estimates and searches**
+- [x] **9.9 Honest labelling for estimates and searches**
   - **Goal:** Apply *Product framing* everywhere prices and links appear: "Find flights" / "View
     options" instead of "Book"; an estimate marker on `estimated_spend_eur`, `price_is_estimated`
     and `is_estimated`; and per-party prices shown against `traveler_count`. Copy-only, but it is

@@ -178,10 +178,12 @@ function ThreadWorkspace({ threadId }: { threadId: string }) {
             onViewFlights={() => dialog.open("flights", {
               destination: itinerary.destination,
               flights: itinerary.flights,
+              travelerCount: itinerary.traveler_count,
             })}
             onViewHotels={() => dialog.open("hotels", {
               destination: itinerary.destination,
               hotels: itinerary.hotels,
+              travelerCount: itinerary.traveler_count,
             })}
             onViewItinerary={scrollToItinerary}
           />

@@ -13,11 +13,14 @@ import {
   DialogContent,
 } from "@mui/material";
 
-import { formatCurrency } from "@/utils/format-currency";
 import {
   getStarCount,
   getStayNights,
 } from "@/utils/hotel-display";
+import {
+  formatCurrency,
+  formatPartyLabel,
+} from "@/utils/format-currency";
 
 import { brandColors } from "@/theme/palette";
 
@@ -240,7 +243,7 @@ function HotelCard({ hotel, isRecommended }: HotelCardProps) {
         <Box sx={{ marginTop: "auto" }}>
           <BookingButton
             href={hotel.booking_url}
-            label="Book Hotel →"
+            label="Find rooms"
             sx={{
               borderRadius: "10px",
               fontSize: 13.5,
@@ -280,9 +283,10 @@ interface HotelsDialogProps {
   destination: string;
   hotels: readonly Hotel[];
   onClose: () => void;
+  travelerCount: number | null;
 }
 
-export function HotelsDialog({ destination, hotels, onClose }: HotelsDialogProps) {
+export function HotelsDialog({ destination, hotels, onClose, travelerCount }: HotelsDialogProps) {
   const nights = getStayNights(hotels);
   const countLabel = `${hotels.length} recommended`;
   const nightsLabel = nights === 1 ? "1 night" : `${nights} nights`;
@@ -329,7 +333,7 @@ export function HotelsDialog({ destination, hotels, onClose }: HotelsDialogProps
               marginTop: "2px",
             }}
           >
-            {nights === null ? countLabel : `${countLabel} · ${nightsLabel}`}
+            {[countLabel, nights === null ? null : nightsLabel, formatPartyLabel(travelerCount)].filter(Boolean).join(" · ")}
           </Typography>
         </Box>
 
@@ -366,6 +370,22 @@ export function HotelsDialog({ destination, hotels, onClose }: HotelsDialogProps
             ))
           }
         </Box>
+
+        {
+          hotels.length > 0 &&
+          <Typography
+            component="p"
+            sx={{
+              color: "rgba(24, 49, 83, 0.4)",
+              fontSize: 11.5,
+              lineHeight: "17px",
+              paddingTop: "14px",
+            }}
+          >
+            Rates are indicative and shown for the whole stay. Links open a hotel search,
+            not a booking — the rate may differ.
+          </Typography>
+        }
 
         {
           hotels.length === 0 &&

@@ -12,7 +12,10 @@ import {
   DialogContent,
 } from "@mui/material";
 
-import { formatCurrency } from "@/utils/format-currency";
+import {
+  formatCurrency,
+  formatPartyLabel,
+} from "@/utils/format-currency";
 import {
   formatStops,
   formatFlightTime,
@@ -228,7 +231,7 @@ function FlightCard({ flight, isBestValue }: FlightCardProps) {
 
           <BookingButton
             href={flight.booking_url}
-            label="Book Flight"
+            label="Find flights"
             sx={{
               borderRadius: "9px",
               fontSize: 13,
@@ -246,9 +249,10 @@ interface FlightsDialogProps {
   destination: string;
   flights: readonly Flight[];
   onClose: () => void;
+  travelerCount: number | null;
 }
 
-export function FlightsDialog({ destination, flights, onClose }: FlightsDialogProps) {
+export function FlightsDialog({ destination, flights, onClose, travelerCount }: FlightsDialogProps) {
   const bestValueId = getBestValueFlightId(flights);
   const firstFlight = flights[0];
 
@@ -300,7 +304,7 @@ export function FlightsDialog({ destination, flights, onClose }: FlightsDialogPr
               marginTop: "2px",
             }}
           >
-            {dateRange ? `${optionsLabel} · ${dateRange}` : optionsLabel}
+            {[optionsLabel, dateRange, formatPartyLabel(travelerCount)].filter(Boolean).join(" · ")}
           </Typography>
         </Box>
 
@@ -337,6 +341,22 @@ export function FlightsDialog({ destination, flights, onClose }: FlightsDialogPr
             ))
           }
         </Box>
+
+        {
+          flights.length > 0 &&
+          <Typography
+            component="p"
+            sx={{
+              color: "rgba(24, 49, 83, 0.4)",
+              fontSize: 11.5,
+              lineHeight: "17px",
+              paddingTop: "14px",
+            }}
+          >
+            Prices are indicative and shown for the whole party. Links open a flight search,
+            not a booking — the fare may differ.
+          </Typography>
+        }
 
         {
           flights.length === 0 &&
