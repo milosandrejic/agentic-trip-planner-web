@@ -10,7 +10,7 @@
     "lint:fix": "eslint . --fix",
     "format": "eslint . --fix",
     "format:check": "eslint . --max-warnings=0",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
