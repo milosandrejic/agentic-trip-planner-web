@@ -54,13 +54,8 @@
 - Phase branches (`phase-<phase-name>`, e.g. `phase-codebase-hygiene`) nest inside the sprint
   branch and PR into it. The sprint branch PRs into `main` when the sprint closes — that PR is
   where `PLAN.md` is archived and the next sprint's `PLAN.md` is written.
-- **Never push while `main` is checked out** — verify the current branch before every push,
-  regardless of what the settings allow; deny rules match command text and a bare `git push`
-  can slip past them. Push and `gh pr create` each require explicit approval in the moment —
-  use `/open-pr <target-branch>` rather than pushing by hand.
-- **Never force-push.** Nothing in this workflow rewrites pushed history — every push is a
-  fresh branch's first push. Force push has no legitimate use here; if one is ever genuinely
-  needed, that's a deliberate one-off you run yourself, not something a skill reaches for.
+- **Claude never pushes or opens a PR — that's always manual, done by the user.** `git push`
+  and `gh pr create` are denied in settings; commit and stop there.
 
 ## Commits
 

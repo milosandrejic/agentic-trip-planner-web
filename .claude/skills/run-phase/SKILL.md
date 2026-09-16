@@ -69,5 +69,5 @@ One entry per task:
 - what changed, in a sentence,
 - **what the user should check visually** — the route to open and what to look at.
 
-End with anything deferred or left open. This skill does not push or open a PR — once every
-task is committed, run `/open-pr <sprint-branch>` when you're ready to merge the phase up.
+End with anything deferred or left open. This skill never pushes or opens a PR — pushing and
+merging are always manual, done by the user once every task is committed.
