@@ -90,11 +90,15 @@ Stop and ask the user — do not guess — when:
 ## 8. Otherwise, close the task
 
 Mark it `[x]` in `docs/PLAN.md`. Add an **Outcome:** line under it if a decision was made
-that the plan did not specify. **Run `npm run typecheck` and `npm run lint` yourself** —
-don't rely solely on the implementing subagent's report; the guard-commit hook enforces this
-too, but the orchestrator checks first rather than finding out from a blocked commit. Then
-commit with the task's own **Commit** message — one commit per task, nothing batched, the
-`[x]`/Outcome edit landing in the same commit as the code.
+that the plan did not specify. Commit with the task's own **Commit** message — one commit
+per task, nothing batched, the `[x]`/Outcome edit landing in the same commit as the code.
+Don't run `typecheck`/`lint` yourself first — the guard-commit hook runs both and blocks the
+commit if either fails, so trust it rather than duplicating the work.
+
+**If the commit is blocked:** delegate a **new** implementing subagent — not the one that
+wrote the task — with the task's full context plus the guard's error output, and ask it to
+fix exactly those failures. Retry the commit. After **two** blocked attempts on the same
+task, stop and ask the user — don't spin up a third subagent on your own judgment.
 
 ## 9. Before the final report
 
