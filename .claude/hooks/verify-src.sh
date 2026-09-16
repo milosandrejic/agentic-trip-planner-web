@@ -4,11 +4,17 @@
 # Keeps Claude from ending a turn while uncommitted src/ changes fail typecheck or lint,
 # without ever letting it grind on a failure out of the user's sight.
 #
-#   no uncommitted src/ changes -> exit 0 at once, so ordinary conversation stays fast
-#   checks pass                 -> exit 0
-#   attempt 1-2 of this turn    -> block: fix the errors, and tell the user what broke
-#   attempt 3                   -> block once more: stop fixing, report to the user, ask
-#   attempt 4+                  -> allow the stop, with a visible warning
+#   no uncommitted src/ changes    -> exit 0 at once, so ordinary conversation stays fast
+#   no dirty marker (see below)    -> exit 0: nothing edited under src/ since the last
+#                                      passing check, so there's nothing new to verify
+#   checks pass                    -> exit 0, marker cleared
+#   attempt 1-2 of this turn       -> block: fix the errors, and tell the user what broke
+#   attempt 3                      -> block once more: stop fixing, report to the user, ask
+#   attempt 4+                     -> allow the stop, with a visible warning
+#
+# The dirty marker is touched by eslint-fix.sh (PostToolUse) whenever an Edit/Write lands
+# under src/, and cleared here once checks pass — a flag for "there's unchecked src/ work",
+# not a cache of a prior result, so it can never go stale the way a content hash could.
 #
 # The count resets on the first stop of every turn (stop_hook_active is false there), so
 # after an escalation the user decides what happens next.
@@ -42,6 +48,11 @@ if [ -z "$state_dir" ] || [ ! -d "$state_dir" ]; then
   state_dir="${TMPDIR:-/tmp}"
 fi
 counter_file="${state_dir%/}/verify-src-attempts-${session_id:-unknown}"
+dirty_marker="${state_dir%/}/verify-src-dirty-${session_id:-unknown}"
+
+if [ ! -f "$dirty_marker" ]; then
+  exit 0
+fi
 
 previous=0
 if [ "$stop_hook_active" = "true" ] && [ -f "$counter_file" ]; then
@@ -58,7 +69,7 @@ lint_output=$(npm run --silent lint 2>&1)
 lint_status=$?
 
 if [ "$typecheck_status" -eq 0 ] && [ "$lint_status" -eq 0 ]; then
-  rm -f "$counter_file"
+  rm -f "$counter_file" "$dirty_marker"
   exit 0
 fi
 
