@@ -10,13 +10,25 @@ Current branch must be the sprint branch — its name is `docs/PLAN.md`'s header
 no prefix, the same derivation `/run-phase` and `/next-task` use. Not `main`, not a
 `phase-*` branch. `git status --porcelain` must be empty. Otherwise say what's wrong and stop.
 
-## 2. Every task accounted for
+## 2. Sync the sprint branch with origin
+
+`git fetch origin`. Compare the current (sprint) branch against `origin/<sprint-branch>`:
+
+- **`origin/<sprint-branch>` doesn't exist yet:** continue — nothing to sync.
+- **Behind:** run `git pull --ff-only` (not on the allow list, so this asks for permission
+  in the moment — that's expected). This is what picks up a phase PR merged on GitHub since
+  the last run; skipping it risks closing the sprint while a finished phase still looks
+  unfinished here.
+- **Diverged:** stop and say so. Don't guess how to reconcile it.
+- **Up to date or ahead:** continue.
+
+## 3. Every task accounted for
 
 Every task in every phase in `docs/PLAN.md` must be `[x]`, or explicitly moved into the
 Deferred section. List anything that's neither and stop — don't guess whether an unfinished
 task should be deferred.
 
-## 3. Verify
+## 4. Verify
 
 Run `npm run typecheck`, `npm run lint`, then `npx next build`.
 
@@ -27,7 +39,7 @@ Run `npm run typecheck`, `npm run lint`, then `npx next build`.
   fix.
 - **`next build` fails any other way:** treat it like a typecheck/lint failure — stop.
 
-## 4. Archive the plan
+## 5. Archive the plan
 
 `git mv docs/PLAN.md docs/plans/sprint-NN-<branch-name>.md` (zero-padded sprint number, e.g.
 `sprint-03-<branch-name>.md`) — `git mv` first, so the file's history follows it, then edit
@@ -51,7 +63,7 @@ its content in the new location:
 Match `docs/plans/sprint-01-mvp.md`'s structure for this — it's the reference for what an
 archived sprint plan looks like.
 
-## 5. Reset `docs/PLAN.md` to the placeholder
+## 6. Reset `docs/PLAN.md` to the placeholder
 
 Write a fresh `docs/PLAN.md`:
 
@@ -67,18 +79,18 @@ and **Definition of Done**. In **Sprint history**, add a line for the sprint tha
 closed, matching the existing entry style — `- **Sprint N — Title**
 (\`docs/plans/sprint-NN-<branch-name>.md\`): Phase <range>, done.`
 
-## 6. Confirm, then commit
+## 7. Confirm, then commit
 
 Show the archived file and the new placeholder. **Wait for approval.** Then commit both
 together as `docs: close sprint N — <title>`.
 
-## 7. Propose the PR — never open it
+## 8. Propose the PR — never open it
 
 Sprint branch into `main`. Title: the sprint's theme. Description: one line per phase, plus
 anything that was moved to Deferred. No attribution of any kind. This is text to hand the
 user — **never push, never run `gh pr create`.** Pushing and PRs are always manual.
 
-## 8. Stop there
+## 9. Stop there
 
 Don't plan, write, or scaffold anything for the next sprint. That's `/start-sprint`'s job,
 run separately, later.

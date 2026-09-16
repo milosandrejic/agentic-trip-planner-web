@@ -23,6 +23,16 @@ phase` does — e.g. task 10.1 needs `phase-polish-motion-responsiveness`, not j
 `phase-*` branch). The current branch must be one of those two. If it's neither — including
 a phase branch for a *different* phase — say which two branches would work and stop.
 
+**On the sprint branch itself** (not a phase branch): sync with origin before going further.
+`git fetch origin`. Compare the current branch against `origin/<sprint-branch>`:
+
+- **`origin/<sprint-branch>` doesn't exist yet:** continue — nothing to sync.
+- **Behind:** run `git pull --ff-only` (not on the allow list, so this asks for permission
+  in the moment — that's expected). This is what picks up a phase PR merged on GitHub since
+  the last run; skipping it would start the task on stale code.
+- **Diverged:** stop and say so. Don't guess how to reconcile it.
+- **Up to date or ahead:** continue.
+
 State the task number, its Goal, and its Commit message before going further.
 
 ## 3. Read only what the task needs
