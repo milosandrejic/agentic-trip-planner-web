@@ -6,8 +6,9 @@ disable-model-invocation: true
 
 ## 1. Require the sprint branch, clean
 
-Current branch must be the sprint branch — not `main`, not a `phase-*` branch — and
-`git status --porcelain` must be empty. Otherwise say what's wrong and stop.
+Current branch must be the sprint branch — its name is `docs/PLAN.md`'s header, kebab-cased,
+no prefix, the same derivation `/run-phase` and `/next-task` use. Not `main`, not a
+`phase-*` branch. `git status --porcelain` must be empty. Otherwise say what's wrong and stop.
 
 ## 2. Every task accounted for
 

@@ -59,6 +59,7 @@ here — its header already matches.
 ## 7. Report the next step
 
 - **No phases yet in the plan:** plan them now, in plan mode, on this branch, using the
-  existing task format (Goal, Files, Depends, Commit). Commit the finished plan before any
-  task work starts — nothing gets implemented against an uncommitted plan.
+  existing task format (Goal, Files, Depends, Commit). Commit the finished plan as
+  `docs: plan sprint N — <title>` before any task work starts — nothing gets implemented
+  against an uncommitted plan.
 - **Phases already exist:** point to `/run-phase <n>` or `/next-task`.

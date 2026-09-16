@@ -7,16 +7,21 @@ argument-hint: "[task number, e.g. 10.2 — omit to take the next ready task]"
 
 Implement exactly **one** task from `docs/PLAN.md`. Stop before committing.
 
-## 1. Require the sprint branch or a phase branch
+## 1. Not `main`
 
-Current branch must be the sprint branch (its name is `docs/PLAN.md`'s header, kebab-cased,
-no prefix) or a `phase-*` branch off it. **On `main`:** point to `/start-sprint` and stop.
-On anything else, say what branch this expects and stop.
+If the current branch is `main`, point to `/start-sprint` and stop. (Full branch validation
+happens in step 2, once the task — and so its phase — is known.)
 
-## 2. Select the task
+## 2. Select the task, then confirm the branch
 
 Read `docs/PLAN.md`. Take task **$ARGUMENTS** if given; otherwise take the first `[ ]` task
 whose **Depends** are all `[x]`. If a dependency is unmet, say which and stop.
+
+Now validate the branch: derive the sprint branch (`docs/PLAN.md`'s header, kebab-cased, no
+prefix) and this task's own phase branch (its phase heading, kebab-cased the same way `/run-
+phase` does — e.g. task 10.1 needs `phase-polish-motion-responsiveness`, not just any
+`phase-*` branch). The current branch must be one of those two. If it's neither — including
+a phase branch for a *different* phase — say which two branches would work and stop.
 
 State the task number, its Goal, and its Commit message before going further.
 
