@@ -12,7 +12,7 @@ Run all of phase **$ARGUMENTS** from `docs/PLAN.md`.
 You **do not implement tasks yourself.** You select, delegate, verify, commit, and report.
 Writing task code in this session defeats the point — each task gets a clean context. You
 also run **design-reviewer** yourself — it's never delegated to the implementing subagent
-(see step 5).
+(see step 6).
 
 ## 2. Require the sprint branch, clean
 
@@ -27,21 +27,32 @@ current branch must match it exactly.
   wrote but never got committed): say so and ask the user to commit first. Don't start on an
   uncommitted plan.
 
-## 3. List the work, then wait
+## 3. Sync the sprint branch with origin
+
+`git fetch origin`. Compare the current (sprint) branch against `origin/<sprint-branch>`:
+
+- **`origin/<sprint-branch>` doesn't exist yet:** continue — nothing to sync.
+- **Behind:** run `git pull --ff-only` (not on the allow list, so this asks for permission
+  in the moment — that's expected). This is what picks up a phase PR merged on GitHub since
+  the last run; skipping it would branch the next phase off stale code.
+- **Diverged:** stop and say so. Don't guess how to reconcile it.
+- **Up to date or ahead:** continue.
+
+## 4. List the work, then wait
 
 List every `[ ]` task in phase $ARGUMENTS in dependency order, with its Goal and Commit
 message. Flag any task blocked by an unmet dependency outside the phase.
 
 **Wait for the user's go.** Do not start.
 
-## 4. Branch
+## 5. Branch
 
 Derive the phase branch name from the phase's own title, not its number: read the phase
 heading (`## Phase $ARGUMENTS — <Title>`) and kebab-case `<Title>` — e.g. Phase 10, "Polish,
 Motion & Responsiveness", becomes `phase-polish-motion-responsiveness`. Create it from the
 current (sprint) branch if it does not exist; reuse it if it does.
 
-## 5. Per task
+## 6. Per task
 
 Mark the task `[~]` in `docs/PLAN.md`, then delegate to an **implementing subagent** with:
 
@@ -66,7 +77,7 @@ The implementing subagent's job is to implement the task and run `npm run typech
 3. After **two rounds** still showing real differences, stop and ask the user — don't keep
    looping on your own judgment of what "real" means past that point.
 
-## 6. Stop on anything unresolved
+## 7. Stop on anything unresolved
 
 Stop and ask the user — do not guess — when:
 
@@ -74,9 +85,9 @@ Stop and ask the user — do not guess — when:
 - `typecheck` or `lint` will not come clean,
 - the task's Files list does not survive contact with the code,
 - design-reviewer reports the app or backend is not running,
-- two design-review rounds still show real differences (step 5).
+- two design-review rounds still show real differences (step 6).
 
-## 7. Otherwise, close the task
+## 8. Otherwise, close the task
 
 Mark it `[x]` in `docs/PLAN.md`. Add an **Outcome:** line under it if a decision was made
 that the plan did not specify. **Run `npm run typecheck` and `npm run lint` yourself** —
@@ -85,7 +96,7 @@ too, but the orchestrator checks first rather than finding out from a blocked co
 commit with the task's own **Commit** message — one commit per task, nothing batched, the
 `[x]`/Outcome edit landing in the same commit as the code.
 
-## 8. Before the final report
+## 9. Before the final report
 
 Once every task in the phase is closed, run `npx next build` once.
 
@@ -93,7 +104,7 @@ Once every task in the phase is closed, run `npx next build` once.
   it as unverified with the reason, don't block on it.
 - **Fails any other way** — treat it like a failing typecheck/lint: stop and ask.
 
-## 9. Final report
+## 10. Final report
 
 One entry per task:
 
