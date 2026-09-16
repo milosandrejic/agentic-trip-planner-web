@@ -6,7 +6,7 @@
 > files, explicit dependencies, and is sized for a single reviewable Git commit. After each task
 > we **stop, review, adjust, then commit** before moving on. The API layer is wired strictly
 > against `docs/API.md` — no endpoints are invented. Where the design shows data the API does not
-> expose, the gap is documented (see *Design ↔ API reconciliations*) and handled without new
+> expose, the gap is documented (see *Design ↔ API reconciliations* in PRODUCT_RULES.md) and handled without new
 > backend calls. **`docs/API.md` was regenerated from the live OpenAPI schema on 2026-08-31 and is
 > authoritative; Phase 9 migrates the frontend onto it.**
 
@@ -32,101 +32,10 @@ These rules govern every task in this plan. When a decision is ambiguous, prefer
 
 ---
 
-## Product framing — recommendations, not bookings
+## Product rules
 
-This governs copy and affordances across every screen, and is easy to get wrong.
-
-We search providers, rank results and **present options**. We never own the transaction.
-No provider exposes a bookable deep link, so **every `booking_url` and `ticket_url` is a
-constructed search URL** — the one exception is an activity with an official venue website.
-
-Consequences the UI must honour:
-
-- **The price shown is indicative, not quoted.** A user who clicks "from €158" and lands on a
-  search page showing €190 has not hit a bug — but they will read it as one unless we say so.
-- **Label actions "Find" / "View options" / "Search", never "Book now".** A booking verb promises a
-  transaction we cannot deliver.
-- **Three fields are explicitly estimates** and must be labelled as such: `estimated_spend_eur`,
-  `Activity.price_is_estimated` (always `true` when a price is set — no provider prices activities),
-  and `HotelOption.is_estimated`.
-- **Budget is reported, not enforced.** The planner does not constrain a plan to `budget_eur`; it
-  only reports spend against it. Never imply a plan "fits" a budget.
-
----
-
-## Known gaps — expected, not defects
-
-This is a **suggestion** product. The itinerary is a proposal to react to, not a booking record, so
-partial data is normal and the UI must degrade gracefully rather than treat a null as an error.
-
-> **Never render a placeholder.** No "N/A", no "€0", no broken icon, no empty panel. **Omit the
-> element instead.** Build the sparse case as the default and treat fully-populated data as the
-> happy path, not the reverse.
-
-**Activity prices are usually absent.** `activity.price_eur` is null far more often than not — no
-provider prices attractions, and the planner is deliberately conservative about inventing a figure.
-A row with no price simply shows no price; the design's "€29 · Trenitalia" line is an enhancement,
-not a requirement. `estimated_spend_eur` is likewise null when nothing is priced, in which case the
-budget panel shows the budget alone rather than a spend bar reading zero. Do not build anything
-that assumes a price exists.
-
-**Weather is missing beyond ~16 days.** A trip planned a month out has **no weather on any day** —
-not a few gaps, all of them — which is the common case for a planning product. The forecast panel
-needs a real absent state: hide it, or say the forecast is not available yet. Never an empty panel
-or a repeated placeholder icon.
-
-**Flight times and prices are sandbox values.** The provider runs in sandbox, so `departs_at`,
-`arrives_at` and `price` are synthetic — identical departure times across airlines, implausible
-durations. **The fields and shapes are correct; only the values are fake.** Build against them
-normally and do not work around what looks wrong; it resolves with a production key.
-
-**Older trips predate newer fields entirely.** Itineraries are stored snapshots, so every nullable
-field in `API.md` is genuinely nullable — including ones that look like they should always be there.
-
----
-
-## Design ↔ API reconciliations
-
-`docs/API.md` (regenerated from the live OpenAPI schema, 2026-08-31) is the authoritative contract.
-The entries below are what remains after the backend MVP; everything else the design showed is now
-a real field. **Do not re-derive client-side anything the API now returns.**
-
-1. **Photos need a bearer token.** `GET /places/photos/{ref}` is authenticated and `<img src>` cannot
-   send a header, so `Activity.photo_url` and every `cover_image_url` are fetched client-side into
-   object URLs via `PlacePhoto`. Both are already full paths (`/places/photos/places/…/photos/…`) —
-   prefix with the API base; do **not** pass them back in as `{photo_reference}`. `HotelOption.photo_url`
-   is an absolute provider URL and renders directly.
-2. **Registration** collects separate `first_name` + `last_name`. Password is **8–30 characters**;
-   the server also validates encoded bytes, so 30 emoji are rejected.
-3. **Status mapping** (thread/trip → chip): `ready → Active` · `draft`/`generating`/`pending`/`running
-   → Planning` · `completed → Completed` · `archived`/`deleted → Archived` · `failed → Failed`.
-4. **Regenerate** sends a follow-up via `POST /threads/{id}/messages`; there is no regenerate endpoint.
-5. **Hotel amenities** ("Free WiFi", "Breakfast", "Spa") do not exist and are not planned. The chip row
-   carries the real fields: `area`, plus an "Estimated price" marker when `is_estimated` is true.
-6. **The per-category budget split** (✈ / 🏨) stays client-side — the API returns `budget_eur` and
-   `estimated_spend_eur` as totals, not a breakdown. Derive the split from the cheapest flight, the
-   cheapest hotel stay and summed activity prices, matching how `estimated_spend_eur` is composed.
-7. **Prices are per party** except `Activity.price_eur`, which is **per person**. Any price rendered
-   without `traveler_count` beside it is misleading. Older trips have a null count — say "total"
-   rather than inventing a party size.
-8. **Clarification loops.** `missing_fields` is drawn from `destination` · `duration` ·
-   `traveler_count`; a *partial* answer returns another clarification rather than a plan. The
-   clarification UI must handle repeated rounds, not a single question. Budget is requested in the
-   same message but never blocks.
-9. **Turns are synchronous** — up to 120 s, no streaming and no polling endpoint — and a second
-   message while one is running returns **409**. The composer must be disabled for the whole turn,
-   and the wait needs a real progress affordance, not a spinner with no explanation.
-10. **Older trips lack newer fields.** Itineraries are stored as snapshots, so a trip planned before a
-    field existed returns null rather than failing. Treat every nullable field as genuinely optional;
-    `DayPlan.title` falls back to `location`.
-
-### Resolved by the backend MVP — workarounds deleted
-
-Kept as a record so these are not reintroduced: activity time buckets, weather parsed from free text,
-sidebar cards without destination or thumbnail, hero image scavenged from the first hotel photo,
-flight cards captioned with an airline instead of a route, hotel rating assumed 0–5, activity type
-guessed from category keywords, and the Travellers row substituted with Destination. Each is now a
-first-class field — see *Newly available* in `docs/API.md`.
+Product framing, known gaps and the design ↔ API reconciliations moved to
+`docs/PRODUCT_RULES.md`. They are durable rules, not tasks, and govern every task here.
 
 ---
 
@@ -482,8 +391,8 @@ first-class field — see *Newly available* in `docs/API.md`.
   - **Goal:** Travellers row from `traveler_count`; dates from `start_date`/`end_date`; weather from
     `day.weather` keyed on `weather_code`; hero from `cover_image_url` via `PlacePhoto`. Budget shows
     `estimated_spend_eur` against `budget_eur` when a budget exists — labelled as an estimate against
-    a stated budget, never as a guarantee (see *Product framing*).
-  - **Absent cases are the default, not the edge** (see *Known gaps*): weather is null on **every**
+    a stated budget, never as a guarantee (see *Product framing* in PRODUCT_RULES.md).
+  - **Absent cases are the default, not the edge** (see *Known gaps* in PRODUCT_RULES.md): weather is null on **every**
     day for any trip beyond ~16 days, so the panel hides entirely rather than showing placeholder
     icons; `estimated_spend_eur` is null whenever nothing is priced, so show the budget alone with no
     spend bar; a missing `traveler_count` means saying "total" rather than inventing a party size.
@@ -510,7 +419,7 @@ first-class field — see *Newly available* in `docs/API.md`.
   - **Commit:** `feat(itinerary): render day titles, venue and note`
 
 - [x] **9.9 Honest labelling for estimates and searches**
-  - **Goal:** Apply *Product framing* everywhere prices and links appear: "Find flights" / "View
+  - **Goal:** Apply *Product framing* (PRODUCT_RULES.md) everywhere prices and links appear: "Find flights" / "View
     options" instead of "Book"; an estimate marker on `estimated_spend_eur`, `price_is_estimated`
     and `is_estimated`; and per-party prices shown against `traveler_count`. Copy-only, but it is
     the difference between a product that reads as honest and one that reads as broken.
@@ -538,19 +447,46 @@ first-class field — see *Newly available* in `docs/API.md`.
 
 > The brief: *empty states, new conversations, animation — everything must feel nice and fluent.*
 > Treat this as product work, not a cleanup pass.
+>
+> **The governing rule: the user must never feel stuck.** Every action acknowledges itself
+> immediately, every wait says what it is waiting for, and nothing that is working looks broken.
+> Planning turns run synchronously for up to 120 s, so this is the difference between the product
+> feeling deliberate and feeling hung.
 
-- [ ] **10.1 Empty states and the new-conversation experience**
+- [ ] **10.1 Starting a trip — from anywhere**
+  - **Goal:** Starting a new trip is currently broken in two places and missing in a third.
+    - **The landing send button looks disabled when it is not.** Its background is a fixed pale
+      grey in both states and only opacity changes, so an enabled button still reads as dead.
+      Give the enabled state a real affordance.
+    - **"New Trip" in the sidebar has no handler** and does nothing at all.
+    - **There is no way to start a trip from inside the workspace.** "New Trip" should open a
+      composer dialog — the same prompt and suggestion chips as the landing hero — run the
+      create, and navigate to the new thread when it lands.
+  - **The wait is the hard part.** `POST /trips` is a synchronous request of up to 120 s. Reuse
+    `PlanningProgress` so the dialog narrates what is happening; the user must never be looking
+    at a frozen screen with no explanation. Disable submit for the duration and surface a
+    failure without losing what they typed.
+  - **Files:** `src/components/landing/prompt-box.tsx`,
+    `src/components/workspace/sidebar/workspace-sidebar.tsx`,
+    `src/components/dialogs/new-trip-dialog.tsx`, `src/components/dialogs/dialog-registry.tsx`,
+    `src/constants/landing.ts`.
+  - **Depends:** Phase 9
+  - **Commit:** `feat(workspace): start a trip from the workspace and fix the landing CTA`
+
+- [ ] **10.2 Empty states and the new-conversation experience**
   - **Goal:** Every zero state earns its screen. `/trips` with no trips at all (first-run) differs
     from `/trips` with trips but none selected. A brand-new thread should invite a first message with
-    suggestions, the way the landing prompt does — not show an empty transcript. Cover: no flights,
-    no hotels, no mapped places, no weather, a thread whose trip has not completed its first turn,
-    and a failed thread.
+    suggestions, the way the landing prompt does — not show an empty transcript. Cover: no flights, no hotels,
+    no mapped places, no weather (the common case, not an edge), no activity prices, no
+    `estimated_spend_eur`, a thread whose trip has not completed its first turn, and a failed thread.
+    Per *Known gaps* (PRODUCT_RULES.md), absent data omits its element — the screen must still look composed with the
+    sparsest realistic payload, which is what most trips will be.
   - **Files:** `src/app/trips/page.tsx`, `src/components/workspace/chat/*`,
     `src/components/workspace/**/empty-*`.
-  - **Depends:** Phase 9
+  - **Depends:** 10.1
   - **Commit:** `feat(ux): add empty states and a new-conversation experience`
 
-- [ ] **10.2 Loading and skeletons**
+- [ ] **10.3 Loading and skeletons**
   - **Goal:** Skeletons that match the shape of what is loading — trip cards, summary cards, the
     timeline, the transcript — so nothing jumps on arrival. Route error boundaries and a not-found
     page.
@@ -558,7 +494,7 @@ first-class field — see *Newly available* in `docs/API.md`.
   - **Depends:** Phase 9
   - **Commit:** `feat(ux): add skeletons and route error states`
 
-- [ ] **10.3 Motion and the planning wait**
+- [ ] **10.4 Motion and the planning wait**
   - **Goal:** Make it feel fluent. Consistent transitions for dialogs, accordions, message arrival
     and panel changes, on one easing/duration scale in the theme. The centrepiece is the **≤120 s
     synchronous turn**: a staged progress narrative ("Searching flights… Comparing hotels… Building
@@ -568,21 +504,21 @@ first-class field — see *Newly available* in `docs/API.md`.
   - **Depends:** 9.10, 10.1
   - **Commit:** `feat(ux): add a motion scale and a staged planning wait`
 
-- [ ] **10.4 Responsive workspace**
+- [ ] **10.5 Responsive workspace**
   - **Goal:** Collapse the 3-column shell to stacked panels / drawers on tablet and mobile; verify
     the landing page and every dialog at small widths.
   - **Files:** `src/layouts/workspace-layout/`, landing components, dialogs.
   - **Depends:** Phase 9
   - **Commit:** `feat(responsive): adapt workspace and landing for mobile`
 
-- [ ] **10.5 Accessibility**
+- [ ] **10.6 Accessibility**
   - **Goal:** Focus management and return-focus in dialogs, ARIA labels, keyboard navigation through
     the timeline and trip list, visible focus rings, and reduced-motion honoured throughout.
   - **Files:** across dialogs and interactive components.
   - **Depends:** 10.3
   - **Commit:** `feat(a11y): improve focus, aria and keyboard support`
 
-- [ ] **10.6 Final consistency pass**
+- [ ] **10.7 Final consistency pass**
   - **Goal:** Audit against `CODING_STYLE.md` (imports, JSX formatting, named exports, no `any`),
     remove dead code, refresh `README.md` with setup and run instructions.
   - **Files:** repo-wide, `README.md`.
@@ -594,7 +530,7 @@ first-class field — see *Newly available* in `docs/API.md`.
 ## Deferred / future (not in this plan)
 
 - **Hotel amenities** — no such field exists and none is planned.
-- **In-app booking and real ticket pricing** — we link out to searches; see *Product framing*.
+- **In-app booking and real ticket pricing** — we link out to searches; see *Product framing* (PRODUCT_RULES.md).
 - PDF export backend integration (UX shipped in 8.5).
 - Share endpoint (copy-link UX shipped in 8.6).
 - Profile editing / Settings page — API exposes read-only `GET /me`; no update endpoint.
