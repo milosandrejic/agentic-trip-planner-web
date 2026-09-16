@@ -6,9 +6,13 @@
 #                                                             fires on every Bash call,
 #                                                             so the common case must be
 #                                                             fast)
-#   `git push` in any form (incl. `git -C <path> push`)   -> deny (second layer behind
-#                                                             the settings.json deny rule)
-#   `git commit` present, message contains a trailer      -> deny, ask Claude to drop it
+#   `git push` in any form (incl. global options before the
+#     subcommand, e.g. `git -c foo=bar push`, `git --no-pager push`) -> deny (second layer
+#                                                             behind the settings.json deny rule)
+#   `git commit` present, message contains a trailer      -> deny, ask Claude to drop it.
+#     Checked both in the command string itself (covers -m, and a heredoc body passed to
+#     -F-/--file=-, since that text is part of the command) and, when -F <file> or
+#     --file=<file> names a real file, in that file's own content.
 #   `git commit` present, gated paths have pending changes
 #     (staged, unstaged, or untracked — a PreToolUse hook runs *before* the command, so
 #     `git add . && git commit` and `git commit -a` have nothing staged yet at this point)
@@ -60,12 +64,17 @@ deny() {
   exit 0
 }
 
+# Global git options come before the subcommand and most take a value, either attached
+# (`--git-dir=<path>`) or as a following token (`-c foo=bar`, `-C <path>`). Match zero or
+# more of either shape between `git` and the subcommand.
+GIT_GLOBAL_OPTS='([[:space:]]+-[A-Za-z]([[:space:]]+[^[:space:]]+)?|[[:space:]]+--[A-Za-z][A-Za-z0-9-]*(=[^[:space:]]+)?)*'
+
 has_git_commit=0
-echo "$command_str" | grep -qE '(^|[;&|]|&&)[[:space:]]*git([[:space:]]+-C[[:space:]]+[^ ]+)?[[:space:]]+commit\b' \
+echo "$command_str" | grep -qE "(^|[;&|]|&&)[[:space:]]*git${GIT_GLOBAL_OPTS}[[:space:]]+commit\\b" \
   && has_git_commit=1
 
 has_git_push=0
-echo "$command_str" | grep -qE '(^|[;&|]|&&)[[:space:]]*git([[:space:]]+-C[[:space:]]+[^ ]+)?[[:space:]]+push\b' \
+echo "$command_str" | grep -qE "(^|[;&|]|&&)[[:space:]]*git${GIT_GLOBAL_OPTS}[[:space:]]+push\\b" \
   && has_git_push=1
 
 if [ "$has_git_push" -eq 1 ]; then
@@ -79,8 +88,22 @@ fi
 # Trailer check — gated strictly on a real `git commit` being present, so an unrelated
 # command that merely mentions one of these strings (e.g. `git log --grep Co-Authored-By`)
 # is never touched.
-if echo "$command_str" | grep -qiE 'co-authored-by|claude-session|generated with claude code'; then
+TRAILER_PATTERN='co-authored-by|claude-session|generated with claude code'
+
+if echo "$command_str" | grep -qiE "$TRAILER_PATTERN"; then
   deny "Drop the attribution trailer (Co-Authored-By / Claude-Session / \"Generated with Claude Code\") and retry — this repo never adds one."
+fi
+
+# `-F <file>` / `--file=<file>` / `--file <file>` point the message at a file whose content
+# never appears in the command string, so the check above can't see it — read it directly.
+message_file=$(COMMAND_STR="$command_str" node -e '
+  const m = process.env.COMMAND_STR.match(/(?:^|\s)(?:-F\s*|--file(?:=|\s+))(\S+)/);
+  process.stdout.write(m ? m[1] : "");
+')
+
+if [ -n "$message_file" ] && [ -f "$message_file" ] \
+  && grep -qiE "$TRAILER_PATTERN" "$message_file"; then
+  deny "Drop the attribution trailer (Co-Authored-By / Claude-Session / \"Generated with Claude Code\") from $message_file and retry — this repo never adds one."
 fi
 
 pending=$(git status --porcelain -- "${GATED_PATHS[@]}" 2>/dev/null)
