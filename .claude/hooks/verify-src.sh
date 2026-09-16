@@ -5,13 +5,16 @@
 # without ever letting it grind on a failure out of the user's sight.
 #
 #   no uncommitted src/ changes -> exit 0 at once, so ordinary conversation stays fast
+#   already checked and passing (see check-cache.sh) -> exit 0, no re-run
 #   checks pass                 -> exit 0
 #   attempt 1-2 of this turn    -> block: fix the errors, and tell the user what broke
 #   attempt 3                   -> block once more: stop fixing, report to the user, ask
 #   attempt 4+                  -> allow the stop, with a visible warning
 #
 # The count resets on the first stop of every turn (stop_hook_active is false there), so
-# after an escalation the user decides what happens next.
+# after an escalation the user decides what happens next. The pass-cache is a separate,
+# unrelated mechanism (shared with guard-commit.sh) and never touches the escalation
+# counter — the ladder above is exactly as it was before caching existed.
 
 set -uo pipefail
 
@@ -21,6 +24,9 @@ OUTPUT_LINES=120
 input=$(cat)
 project_dir="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 cd "$project_dir" || exit 0
+
+# shellcheck source=lib/check-cache.sh
+source "$project_dir/.claude/hooks/lib/check-cache.sh"
 
 if [ -z "$(git status --porcelain -- src/ 2>/dev/null)" ]; then
   exit 0
@@ -52,12 +58,22 @@ if [ "$stop_hook_active" = "true" ] && [ -f "$counter_file" ]; then
 fi
 attempt=$((previous + 1))
 
+cache_file=$(check_cache_file "$state_dir" "$session_id")
+current_hash=$(check_cache_hash)
+cached_hash=$(check_cache_read "$cache_file")
+
+if [ -n "$cached_hash" ] && [ "$current_hash" = "$cached_hash" ]; then
+  rm -f "$counter_file"
+  exit 0
+fi
+
 typecheck_output=$(npm run --silent typecheck 2>&1)
 typecheck_status=$?
 lint_output=$(npm run --silent lint 2>&1)
 lint_status=$?
 
 if [ "$typecheck_status" -eq 0 ] && [ "$lint_status" -eq 0 ]; then
+  check_cache_write "$cache_file" "$current_hash"
   rm -f "$counter_file"
   exit 0
 fi
