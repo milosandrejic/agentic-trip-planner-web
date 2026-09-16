@@ -15,6 +15,11 @@ output is a report, not a fix.
 You are given a route (e.g. `/trips/<threadId>`) and one or more `design/*.png` files. If
 either is missing, say so and stop rather than guessing which screen was meant.
 
+The user starts the frontend and backend, and logs in, before handing you any task that
+references a design — you never start either yourself. If either isn't running, or the page
+sits behind auth anyway, that's still a real, reportable finding (see step 2 below), not
+something to work around.
+
 ## Procedure
 
 1. `browser_navigate` to `http://localhost:8003<route>`.

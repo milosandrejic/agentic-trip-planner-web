@@ -7,14 +7,20 @@ argument-hint: "[task number, e.g. 10.2 — omit to take the next ready task]"
 
 Implement exactly **one** task from `docs/PLAN.md`. Stop before committing.
 
-## 1. Select the task
+## 1. Require the sprint branch or a phase branch
+
+Current branch must be the sprint branch (its name is `docs/PLAN.md`'s header, kebab-cased,
+no prefix) or a `phase-*` branch off it. **On `main`:** point to `/start-sprint` and stop.
+On anything else, say what branch this expects and stop.
+
+## 2. Select the task
 
 Read `docs/PLAN.md`. Take task **$ARGUMENTS** if given; otherwise take the first `[ ]` task
 whose **Depends** are all `[x]`. If a dependency is unmet, say which and stop.
 
 State the task number, its Goal, and its Commit message before going further.
 
-## 2. Read only what the task needs
+## 3. Read only what the task needs
 
 - The task's own **Files** list — those paths only.
 - Any `design/*.png` the task references.
@@ -23,36 +29,39 @@ State the task number, its Goal, and its Commit message before going further.
 
 Do not read the whole codebase. If the Files list is wrong or incomplete, say so.
 
-## 3. Plan, then wait
+## 4. Plan, then wait
 
 Present a short plan: what changes in each file, and any decision the task does not settle.
 **Wait for approval.** Do not write code yet.
 
-## 4. Implement
+## 5. Implement
 
 Mark the task `[~]` in `docs/PLAN.md`, then implement it. Stay inside the task's scope —
 anything else you notice goes in the report, not the diff.
 
-## 5. Verify
+## 6. Verify
 
-Run `npm run typecheck` and `npm run lint`. Fix and re-run until both are clean. Never
-report a task done on failing checks.
+Run `npm run typecheck`, `npm run lint`, and `npx next build`. Fix and re-run typecheck/lint
+until both are clean. For the build: a failure for an environment reason (no network, can't
+fetch a font, no backend) is reported as unverified with the reason, not treated as failing;
+any other build failure is fixed like a typecheck/lint failure. Never report a task done on
+failing checks.
 
-## 6. Design check
+## 7. Design check
 
 If the task references a `design/*.png`, run the **design-reviewer** subagent against the
 relevant route and that design. Fix real differences. If it reports the app or backend is
 not running, say so — do not claim the design was verified.
 
-## 7. Report
+## 8. Report
 
 Walk the **Definition of Done** in `docs/PLAN.md` item by item, each with evidence:
 command output, the design-reviewer result, or the specific line that satisfies it. Mark
 anything you could not verify as unverified — never as passing.
 
-## 8. Stop
+## 9. Stop
 
-**Do not commit.** Present:
+**Do not commit yet.** Present:
 
 - the files changed,
 - the task's **Commit** message as the proposed message,
@@ -60,4 +69,6 @@ anything you could not verify as unverified — never as passing.
   of what you chose and why, to sit under the task (see `docs/PLAN.md`'s Legend, or 1.2 /
   9.3 in `docs/plans/sprint-01-mvp.md`, for the pattern).
 
-Then wait. Tick the task to `[x]` only after the user approves.
+Then wait. **Once the user approves: tick the task to `[x]`, add the Outcome line if there
+is one, and commit — all three in that order, landing in the one commit.** Approval covers
+exactly this one task; it doesn't carry to the next.
