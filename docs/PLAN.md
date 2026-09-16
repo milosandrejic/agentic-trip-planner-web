@@ -36,6 +36,9 @@ Product framing, known gaps and the design ↔ API reconciliations live in
 
 ## Legend
 
+- **This file is exactly one sprint.** Between sprints it is a placeholder with no phases.
+  Lifecycle: `/start-sprint` creates this file's branch and plan → `/run-phase` or
+  `/next-task` does the work → `/close-sprint` archives it and resets the placeholder.
 - `[ ]` not started · `[~]` in progress · `[x]` done
 - Each task lists: **Goal**, **Files** (primary paths under `src/`), **Depends**, **Commit** (suggested message).
 - `🔒` = requires the OpenAPI-backed API layer.
@@ -200,7 +203,9 @@ A task is complete only when **all** of the following hold:
 
 - [ ] Follows `docs/CODING_STYLE.md` (file naming, named exports, import + JSX formatting, no `any`).
 - [ ] Respects the Architecture Principles above (logic in hooks/services, API only via services, React Query for server state).
-- [ ] Builds successfully (`next build`).
+- [ ] Builds successfully (`next build` — run by `/next-task` per task, once at the end of
+      `/run-phase`, and again by `/close-sprint`; an environment-caused failure there is
+      reported as unverified, not treated as failing).
 - [ ] `npm run typecheck` passes (strict).
 - [ ] No ESLint warnings or errors (`npm run lint`).
 - [ ] Matches the corresponding Figma screen in `/design`.

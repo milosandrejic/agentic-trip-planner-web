@@ -40,20 +40,26 @@
 ## Workflow
 
 - One task per session — `/clear` between tasks.
-- `/next-task` — implement a single task, stop before committing for review.
-- `/run-phase` — a whole phase, one commit per task on a phase branch named after the phase.
-- Never commit before `npm run typecheck && npm run lint` both pass.
-- **Never commit without explicit approval.** Present the work and wait; approval for one
-  step does not carry to the next.
+- `/start-sprint <title>` — create the sprint branch; phases get planned on it, in plan
+  mode, and committed before any task work starts.
+- `/next-task` — step mode: one task, never commits without explicit approval, and that
+  approval covers only this one task.
+- `/run-phase` — phase mode: one commit per task on a phase branch. One go on the task list
+  covers every task's commit in that phase — nothing beyond it.
+- `/close-sprint` — archive the finished sprint's plan and reset the placeholder.
+- Never commit before `npm run typecheck && npm run lint` both pass — the guard-commit hook
+  enforces this, the no-attribution-trailer rule, and the push ban itself, so a blocked
+  commit or push is expected behaviour, not a bug.
 
 ## Branching
 
-- **Never work directly on `main`.** Each sprint gets its own branch, named after the sprint
-  with no `sprint-`/number prefix (e.g. `polish-hygiene` — the number lives only in the
-  plan's filename, `docs/plans/sprint-02-polish-hygiene.md`). Check it out before `/run-phase`.
-- Phase branches (`phase-<phase-name>`, e.g. `phase-codebase-hygiene`) nest inside the sprint
-  branch and PR into it. The sprint branch PRs into `main` when the sprint closes — that PR is
-  where `PLAN.md` is archived and the next sprint's `PLAN.md` is written.
+- **Never work directly on `main`.** `/start-sprint <title>` on `main` creates the sprint
+  branch — named after the sprint with no `sprint-`/number prefix (e.g. `polish-hygiene`;
+  the number lives only in the archive filename, `docs/plans/sprint-02-polish-hygiene.md`).
+- Phase branches (`phase-<phase-name>`, e.g. `phase-codebase-hygiene`) branch off the sprint
+  branch and PR into it.
+- `/close-sprint` archives `docs/PLAN.md` and resets it to a placeholder once every task is
+  `[x]` or explicitly deferred. The sprint branch then PRs into `main`.
 - **Claude never pushes or opens a PR — that's always manual, done by the user.** `git push`
   and `gh pr create` are denied in settings; commit and stop there.
 
