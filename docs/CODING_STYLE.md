@@ -1,10 +1,39 @@
 # Coding Style Guide
 
+## Enforced by ESLint — run `npm run lint:fix`
+
+`npm run lint` runs with `--max-warnings=0`, so a warning fails the build exactly like an
+error. Do not hand-format for these; `lint:fix` does it. Every rule below was verified
+against `eslint.config.mjs`.
+
+- **kebab-case filenames** under `src/` — `check-file/filename-naming-convention`
+- **Named exports only** under `src/`; `export default` is allowed *only* in Next route
+  files (`page` `layout` `error` `loading` `not-found` `template`) — `import/no-default-export`
+- **No relative parent imports** (`../`); use `@/` — `import/no-relative-parent-imports`
+- **Import groups and order** — external → `@mui/*` → `@/hooks` → `@/utils` → internal →
+  `@/components` → `@/types` → relative, each group sorted by line length ascending —
+  `perfectionist/sort-imports`, `perfectionist/sort-named-imports`
+- **2+ named imports break across lines** — `{` and `}` each on their own line —
+  `object-curly-newline`
+- **Never `any`** — `@typescript-eslint/no-explicit-any`
+- **Ternaries stay on one line** — `@stylistic/multiline-ternary: never`
+- **One JSX prop per line** when the tag is multiline, first prop on its own line —
+  `@stylistic/jsx-max-props-per-line`, `@stylistic/jsx-first-prop-new-line`
+- **Self-closing components**, no `={true}`, no `{"string"}` braces — `react/self-closing-comp`,
+  `react/jsx-boolean-value`, `react/jsx-curly-brace-presence`
+- **Braces on every control statement** — `curly`
+- **Double quotes, semicolons, 2-space indent, trailing commas on multiline, arrow parens
+  always, spaces inside object braces**
+- **No unused imports or variables** (`_` prefix to opt out), newline after the import block,
+  no trailing whitespace, max one consecutive blank line, file ends in a newline
+- **`consistent-return`** and **`no-shadow`**
+
+Everything below this point is convention ESLint *cannot* check. That is the part worth
+your attention.
+
 ## File & Component Naming
 
-- **File naming**: Use kebab-case for all files (`sign-in-view.jsx`, `account-drawer.jsx`)
 - **Component exports**: Use named exports only (`export function ComponentName() {}`)
-- **Exception**: Next.js route files (`page.tsx`, `layout.tsx`, `error.tsx`, `loading.tsx`, `not-found.tsx`, `template.tsx`) must use `export default`
 - **Component organization**: One component per file unless tightly coupled
 
 ## "use client" Directive (Next.js)
@@ -24,34 +53,34 @@
 - Components using only Server Component features
 
 ✅ **Correct:**
-```javascript
+```tsx
 // No "use client" - purely presentational
-export function StaticCard({ title, description }) {
+export function SectionHeading({ title, subtitle }: SectionHeadingProps) {
   return (
-    <Card>
-      <Typography>{title}</Typography>
-      <Typography>{description}</Typography>
-    </Card>
+    <Box>
+      <Typography variant="h2">{title}</Typography>
+      <Typography variant="body1">{subtitle}</Typography>
+    </Box>
   );
 }
 
 // "use client" required - uses useState hook
 "use client";
 
-export function InteractiveButton() {
-  const [count, setCount] = useState(0);
+export function ChatPanel() {
+  const [draft, setDraft] = useState("");
 
-  return <Button onClick={() => setCount(count + 1)}>{count}</Button>;
+  return <ChatInput value={draft} onChange={setDraft} />;
 }
 ```
 
 ❌ **Avoid:**
-```javascript
+```tsx
 // Unnecessary "use client" for static component
 "use client";
 
-export function StaticCard({ title }) {
-  return <Card><Typography>{title}</Typography></Card>;
+export function SectionHeading({ title }: SectionHeadingProps) {
+  return <Typography variant="h2">{title}</Typography>;
 }
 ```
 
@@ -61,49 +90,60 @@ export function StaticCard({ title }) {
 **ALWAYS use named imports** for third-party libraries to enable tree-shaking:
 
 ✅ **Correct:**
-```javascript
+```tsx
+// Next.js
+import NextLink from "next/link";
+import { usePathname } from "next/navigation";
+
 // Material-UI - grouped named imports
-import { Box, Button, Typography, Card, Alert } from "@mui/material";
-import { LoadingButton, DatePicker } from "@mui/lab";
-import { AddIcon, EditIcon } from "@mui/icons-material";
+import {
+  Box,
+  Button,
+  Typography,
+} from "@mui/material";
 
-// React & Router - named imports
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { Navigate, useNavigate } from "react-router";
-
-// Utilities - individual function imports
-import debounce from "lodash/debounce";
-import dayjs from "dayjs";
+// React & data layer - named imports
+import { useState } from "react";
+import {
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 // Internal - absolute imports with @ prefix
-import { useAuthContext } from "@/auth/hooks";
-import { Iconify } from "@/components/iconify";
-import { paths } from "@/routes/paths";
+import { useThreads } from "@/hooks/use-threads";
+import { getFlagEmoji } from "@/utils/country";
+import { StatusChip } from "@/components/status-chip/status-chip";
+
+// Types last, as type imports
+import type { ThreadSummary } from "@/types/api";
 ```
 
 ❌ **Avoid:**
-```javascript
+```tsx
 // Prevents tree-shaking
 import * as MUI from "@mui/material";
 import * as React from "react";
-import _ from "lodash";
 
 // Relative parent imports
-import { Component } from "../../components/component";
+import { StatusChip } from "../../components/status-chip/status-chip";
 ```
 
 ### Import Formatting
 - **Single import**: `import { Component } from "library"`
 - **Multiple imports (2+)**: Use multiline format with each import on its own line:
-```javascript
+```tsx
 import {
-  Component1,
-  Component2,
-  Component3
-} from "library";
+  Box,
+  Button,
+  Typography,
+} from "@mui/material";
 ```
 - **Closing brace** `}` should be on its own line
 - Each named import should be on a separate line for better readability and git diffs
+
+> ESLint enforces only that the braces break onto their own lines, not that each name gets
+> its own line. `{ Box, Button, Typography }` collapsed onto one interior line passes lint
+> and still violates this rule. Keep one name per line yourself.
 
 ## JSX Formatting Rules
 
@@ -115,8 +155,8 @@ import {
 - **Component** on the next line with proper indentation
 
 ✅ **Correct:**
-```jsx
-export function AlertComponent({ message, isVisible, type }) {
+```tsx
+export function AlertComponent({ message, isVisible, type }: AlertComponentProps) {
   if (!message) return null;
 
   return (
@@ -130,7 +170,7 @@ export function AlertComponent({ message, isVisible, type }) {
       }
 
       {
-        type === 'error' &&
+        type === "error" &&
         <Iconify
           icon="eva:alert-circle-fill"
           color="error.main"
@@ -142,7 +182,7 @@ export function AlertComponent({ message, isVisible, type }) {
 ```
 
 ✅ **Allowed (simple ternary with 0-1 props):**
-```jsx
+```tsx
 return (
   <div>
     {
@@ -158,26 +198,26 @@ return (
 - **Closing tag**: Self-closing components end with `/>` on the last prop line
 - **Empty line spacing**: Add empty line between sibling components at the same level for better readability
 
-```jsx
-<LoadingButton
+```tsx
+<Button
   variant="contained"
   size="large"
   onClick={handleSubmit}
-  loading={isSubmitting}
+  disabled={isSubmitting}
 >
   Sign In
-</LoadingButton>
+</Button>
 
-<Field
-  name="email"
-  label="Email address"
-  placeholder="example@gmail.com"
-  InputLabelProps={{ shrink: true }}
+<TextField
+  id="sign-in-password"
+  type="password"
+  placeholder="••••••••"
+  autoComplete="current-password"
 />
 ```
 
 ✅ **Correct spacing between sibling components:**
-```jsx
+```tsx
 <Box sx={{ textAlign: "center" }}>
   <Typography
     variant="h2"
@@ -199,7 +239,7 @@ return (
       opacity: 0.95,
     }}
   >
-    Join thousands of property owners
+    Plan your next trip in minutes
   </Typography>
 
   <Button
@@ -207,7 +247,6 @@ return (
     size="large"
     endIcon={<ArrowForward />}
     sx={{
-      color: "white",
       px: 5,
       py: 2,
     }}
@@ -223,7 +262,7 @@ return (
 - **Arrow function** with parentheses when returning JSX
 - **Component** properly indented inside the map
 
-```jsx
+```tsx
 {
   items.map((item) => (
     <MenuItem
@@ -238,7 +277,7 @@ return (
 ```
 
 ✅ **Correct - with multiple statements:**
-```jsx
+```tsx
 {
   features.map((feature, index) => {
     const Icon = feature.icon;
@@ -264,40 +303,40 @@ return (
 - **Empty line around conditional rendering blocks** when not first/last child
 
 ✅ **Correct:**
-```jsx
-export function SignInView() {
-  const [errorMsg, setErrorMsg] = useState("");
-  const password = useBoolean();
+```tsx
+export function SignInForm() {
+  const [showPassword, setShowPassword] = useState(false);
+  const { isLoading, login } = useAuth();
 
-  const methods = useForm({
-    resolver: zodResolver(SignInSchema),
-    defaultValues: { email: "", password: "" }
+  const { register, handleSubmit, formState: { errors } } = useForm<SignInFormValues>({
+    defaultValues: { email: "", password: "" },
+    resolver: zodResolver(signInSchema),
   });
 
-  if (checkUserSession) {
-    return <Navigate to={paths.dashboard} replace />;
+  if (isLoading) {
+    return <LoadingScreen />;
   }
 
   return (
-    <Card>
+    <Box>
       {
-        errorMsg &&
+        errors.root &&
         <Alert
           severity="error"
           sx={{ mb: 3 }}
         >
-          {errorMsg}
+          {errors.root.message}
         </Alert>
       }
 
-      <Form methods={methods} onSubmit={onSubmit}>
-        <Field
-          name="email"
-          label="Email address"
-          InputLabelProps={{ shrink: true }}
+      <form onSubmit={handleSubmit(handleFormSubmit)}>
+        <TextField
+          {...register("email")}
+          id="sign-in-email"
+          placeholder="you@example.com"
         />
-      </Form>
-    </Card>
+      </form>
+    </Box>
   );
 }
 ```
@@ -305,20 +344,18 @@ export function SignInView() {
 ## TypeScript Conventions
 
 ### Component Structure
-```jsx
+```tsx
 // Standard component pattern
-export function ComponentName({ prop1, prop2, ...other }) {
+export function ComponentName({ prop1, prop2 }: ComponentNameProps) {
   // Hook declarations first
   const [state, setState] = useState(initialValue);
-  const { data } = useSWR(key, fetcher);
+  const { data } = useThread(threadId);
 
   // Derived values
-  const computedValue = useMemo(() =>
-    expensiveComputation(state), [state]
-  );
+  const computedValue = useMemo(() => expensiveComputation(state), [state]);
 
   // Event handlers
-  const handleClick = useCallback((event) => {
+  const handleClick = useCallback((event: MouseEvent) => {
     // handler logic
   }, [dependencies]);
 
@@ -351,6 +388,7 @@ Current structure:
 ```text
 src/
 ├── api/
+├── app/
 ├── assets/
 ├── components/
 ├── config/
@@ -358,8 +396,6 @@ src/
 ├── context/
 ├── hooks/
 ├── layouts/
-├── pages/
-├── routes/
 ├── services/
 ├── theme/
 ├── types/
@@ -402,7 +438,7 @@ useEffect(() => {
 ✅ Correct
 
 ```tsx
-const { data } = useTrips();
+const { data } = useThreads();
 ```
 
 ## React Query
@@ -415,10 +451,14 @@ const { data } = useTrips();
 Example:
 
 ```tsx
-export function useTrips() {
-  return useQuery({
-    queryKey: ["trips"],
-    queryFn: getTrips,
+export function useCreateTrip() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: CreateTripRequest) => createTrip(request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.threads.all });
+    },
   });
 }
 ```
