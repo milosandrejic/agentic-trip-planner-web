@@ -57,6 +57,7 @@ anything you could not verify as unverified — never as passing.
 - the files changed,
 - the task's **Commit** message as the proposed message,
 - an **Outcome:** line if you made a decision the plan did not specify — a one-line record
-  of what you chose and why, to sit under the task (see 9.2 for the pattern).
+  of what you chose and why, to sit under the task (see `docs/PLAN.md`'s Legend, or 1.2 /
+  9.3 in `docs/plans/sprint-01-mvp.md`, for the pattern).
 
 Then wait. Tick the task to `[x]` only after the user approves.
