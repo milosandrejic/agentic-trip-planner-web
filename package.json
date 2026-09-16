@@ -6,8 +6,8 @@
     "dev": "next dev --port=8003",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --max-warnings=0",
-    "lint:fix": "eslint . --fix",
+    "lint": "eslint . --max-warnings=0 --cache --cache-location node_modules/.cache/eslint/",
+    "lint:fix": "eslint . --fix --cache --cache-location node_modules/.cache/eslint/",
     "format": "eslint . --fix",
     "format:check": "eslint . --max-warnings=0",
     "typecheck": "next typegen && tsc --noEmit"
