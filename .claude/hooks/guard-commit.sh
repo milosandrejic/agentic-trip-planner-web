@@ -12,8 +12,10 @@
 #   `git commit` present, gated paths have pending changes
 #     (staged, unstaged, or untracked — a PreToolUse hook runs *before* the command, so
 #     `git add . && git commit` and `git commit -a` have nothing staged yet at this point)
-#     -> reuse the Stop hook's pass cache if the hash is unchanged, else run
-#        `npm run typecheck && npm run lint`; deny with the last ~120 lines on failure
+#     -> always run `npm run typecheck && npm run lint`; deny with the last ~120 lines on
+#        failure. No cache — a cached pass can go stale the moment HEAD moves (e.g. a
+#        rebase or a fresh pull) without the pending diff itself changing, which would
+#        let a real failure through.
 #   `git commit` present, only non-gated paths pending     -> allow (docs-only commits
 #                                                              skip the checks)
 #
@@ -28,23 +30,14 @@ set -uo pipefail
 project_dir="${CLAUDE_PROJECT_DIR:-$(pwd)}"
 cd "$project_dir" || exit 0
 
-# shellcheck source=lib/check-cache.sh
-source "$project_dir/.claude/hooks/lib/check-cache.sh"
+# Paths whose content can change a typecheck/lint result. Broader than just `src/` on
+# purpose: an eslint.config.mjs or tsconfig.json edit can flip the result of every file.
+GATED_PATHS=(src eslint.config.mjs tsconfig.json package.json)
 
 OUTPUT_LINES=120
 
 input=$(cat)
 
-read_field() {
-  HOOK_INPUT="$input" node -e '
-    try {
-      const value = JSON.parse(process.env.HOOK_INPUT)[process.argv[1]];
-      process.stdout.write(value === undefined || value === null ? "" : String(value));
-    } catch {}
-  ' "$1"
-}
-
-# tool_input.command is nested; read_field only handles top-level keys.
 command_str=$(HOOK_INPUT="$input" node -e '
   try {
     const input = JSON.parse(process.env.HOOK_INPUT);
@@ -90,18 +83,8 @@ if echo "$command_str" | grep -qiE 'co-authored-by|claude-session|generated with
   deny "Drop the attribution trailer (Co-Authored-By / Claude-Session / \"Generated with Claude Code\") and retry — this repo never adds one."
 fi
 
-pending=$(git status --porcelain -- "${CHECK_CACHE_GATED_PATHS[@]}" 2>/dev/null)
+pending=$(git status --porcelain -- "${GATED_PATHS[@]}" 2>/dev/null)
 if [ -z "$pending" ]; then
-  exit 0
-fi
-
-session_id=$(read_field session_id)
-scratchpad_dir=$(read_field scratchpad_dir)
-cache_file=$(check_cache_file "$scratchpad_dir" "$session_id")
-current_hash=$(check_cache_hash)
-cached_hash=$(check_cache_read "$cache_file")
-
-if [ -n "$cached_hash" ] && [ "$current_hash" = "$cached_hash" ]; then
   exit 0
 fi
 
@@ -111,7 +94,6 @@ lint_output=$(npm run --silent lint 2>&1)
 lint_status=$?
 
 if [ "$typecheck_status" -eq 0 ] && [ "$lint_status" -eq 0 ]; then
-  check_cache_write "$cache_file" "$current_hash"
   exit 0
 fi
 
