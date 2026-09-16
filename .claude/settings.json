@@ -1,10 +1,13 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Bash(npm run typecheck)",
       "Bash(npm run lint)",
       "Bash(npm run lint:fix)",
-      "Bash(npm run dev)",
       "Bash(npx next typegen *)",
       "Bash(npx eslint *)",
       "Bash(npx tsc *)",
@@ -16,7 +19,12 @@
       "Bash(git branch)",
       "Bash(git branch --show-current)",
       "Bash(git branch --list *)",
-      "Bash(git checkout -b *)"
+      "Bash(git branch -r *)",
+      "Bash(git checkout -b *)",
+      "Bash(git fetch *)",
+      "Bash(git rev-list *)",
+      "Bash(git rev-parse *)",
+      "Bash(git ls-remote *)"
     ],
     "deny": [
       "Bash(git push *)",
@@ -31,10 +39,24 @@
       "Bash(git branch --delete *)",
       "Bash(git rebase *)",
       "Bash(git stash drop *)",
-      "Bash(git stash clear *)"
+      "Bash(git stash clear *)",
+      "Read(./.env*)",
+      "Read(!.env.example)"
     ]
   },
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/guard-commit.sh",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
