@@ -1,8 +1,8 @@
 ---
 name: run-phase
-description: Orchestrate a whole phase of docs/PLAN.md — delegate each task to a subagent, commit per task on a phase branch, and stop for the user on any open question.
+description: Orchestrate a whole phase of docs/PLAN.md — delegate each task to a subagent, commit per task on a phase branch named after the phase, and stop for the user on any open question.
 disable-model-invocation: true
-argument-hint: "[phase number, e.g. 10]"
+argument-hint: "[phase number, e.g. 10 — the branch it creates is named after the phase, not the number]"
 ---
 
 Run all of phase **$ARGUMENTS** from `docs/PLAN.md`.
@@ -21,7 +21,13 @@ its Goal and Commit message. Flag any task blocked by an unmet dependency outsid
 
 ## 3. Branch
 
-Work on `phase-$ARGUMENTS`. Create it from the current branch if it does not exist.
+**Refuse if the current branch is `main`.** A phase branches off the sprint branch, not off
+`main` directly — check out the sprint branch first, then re-run this skill.
+
+Derive the branch name from the phase's own title, not its number: read the phase heading
+(`## Phase $ARGUMENTS — <Title>`) and kebab-case `<Title>` — e.g. Phase 10, "Polish, Motion &
+Responsiveness", becomes `phase-polish-motion-responsiveness`. Create it from the current
+(sprint) branch if it does not exist; reuse it if it does.
 
 ## 4. Per task
 
@@ -63,4 +69,5 @@ One entry per task:
 - what changed, in a sentence,
 - **what the user should check visually** — the route to open and what to look at.
 
-End with anything deferred or left open.
+End with anything deferred or left open. This skill does not push or open a PR — once every
+task is committed, run `/open-pr <sprint-branch>` when you're ready to merge the phase up.
