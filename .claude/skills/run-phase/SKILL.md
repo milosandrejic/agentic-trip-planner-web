@@ -69,5 +69,12 @@ One entry per task:
 - what changed, in a sentence,
 - **what the user should check visually** — the route to open and what to look at.
 
-End with anything deferred or left open. This skill never pushes or opens a PR — pushing and
-merging are always manual, done by the user once every task is committed.
+End with anything deferred or left open, then propose a PR for merging this phase branch
+into the sprint branch:
+
+- **Title:** the phase's own theme, not a copy of one task's commit subject.
+- **Description:** one line per task (not a wall of prose), plus anything deferred or left
+  open. Same rule as commit messages — no `Co-Authored-By` or attribution footer of any kind.
+
+This skill never pushes or opens a PR itself — pushing and merging are always manual, done
+by the user once every task is committed. The proposal above is only text to hand them.
